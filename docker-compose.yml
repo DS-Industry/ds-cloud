@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  ds-cloud:
+    build: ./ds-cloud
+    restart: unless-stopped
+  nginx:
+    image: nginx:stable-alpine
+    container_name: cloud-nginx

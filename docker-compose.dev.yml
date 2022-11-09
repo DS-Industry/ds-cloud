@@ -1,0 +1,12 @@
+version: "3"
+services:
+  ds-cloud:
+    env_file: /Users/eshom/Developer/Web/.env/cloud/.env.development
+    command: npm run start:dev
+    volumes:
+      - ./ds-cloud/src:/usr/app/src
+  nginx:
+    ports:
+      - "5050:80"
+    volumes:
+      - ./nginx/default.conf.dev:/etc/nginx/conf.d/default.conf
