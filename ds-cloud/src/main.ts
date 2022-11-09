@@ -18,7 +18,6 @@ async function bootstrap() {
   );
   app.setGlobalPrefix('/api/v1/');
   app.use(compression());
-  app.use(helmet());
   app.enable('trust proxy');
 
   //Swagger auth
