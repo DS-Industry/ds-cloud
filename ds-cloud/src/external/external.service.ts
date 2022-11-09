@@ -38,7 +38,6 @@ export class ExternalService {
    * @param data
    */
   public async writeControllerData(id: string, data: any) {
-    console.log('Writing data start...');
     const bulkOps = [];
     const res = {};
     const updateTime = new Date();
