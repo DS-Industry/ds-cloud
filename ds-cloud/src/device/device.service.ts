@@ -6,9 +6,9 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateDeviceDto } from './dto/create-device.dto';
-import { UpdateDeviceDto } from './dto/update-device.dto';
-import { CollectionService } from '../collection/collection.service';
+import { CreateDeviceDto } from './dto/req/create-device.dto';
+import { UpdateDeviceDto } from './dto/req/update-device.dto';
+import { CollectionService } from '../app/collection/collection.service';
 import { CsvParser } from 'nest-csv-parser';
 import * as fs from 'fs';
 import * as moment from 'moment';
@@ -16,6 +16,8 @@ import { getCSVFile } from '../utils/file.utils';
 import * as iconv from 'iconv-lite';
 import { DeviceFileModel } from '../utils/device-file-model.util';
 import { DeviceRepository } from './device.repository';
+import { CollectionDocument } from '../app/collection/Schema/collection.schema';
+import { inspect } from 'util';
 
 @Injectable()
 export class DeviceService {
@@ -41,7 +43,6 @@ export class DeviceService {
     const data = {
       ...createDeviceDto,
       owner: owner.id,
-      status: 1,
       registrationDate: date,
     };
 
@@ -96,10 +97,27 @@ export class DeviceService {
   }
 
   /**
+   * [TEMP FUNCTION TO UPDATE DB]
+   * TODO Do not forget to delete
    * Getting all devices from db
    */
   async findAll() {
-    return this.deviceRepository.findAll({});
+
+    const devices = await this.deviceRepository.findAll({});
+
+    for (const dev of devices) {
+      const owner = dev.owner;
+
+      if (!owner) continue;
+
+      const collection = await this.collectionService.findOne(owner);
+
+      if (!collection) continue;
+
+      await this.collectionService.findOneAndUpdate(collection._id, dev);
+    }
+
+
   }
 
   /**
@@ -147,7 +165,7 @@ export class DeviceService {
    */
   async update(id: string, updateDeviceDto: UpdateDeviceDto) {
     const device = await this.deviceRepository.findOneAndUpdate(
-      { _id: id },
+      { identifier: id },
       updateDeviceDto,
     );
 

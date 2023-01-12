@@ -16,6 +16,19 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@/*": ["src/*"],
+      "@common": ["src/common/*"],
+      "@enums": ["src/common/enums/*"],
+      "@filters": ["src/common/filters/*"],
+      "@helpers": ["src/common/helpers/*"],
+      "@exceptions": ["src/common/helpers/exceptions/*"],
+      "@app": ["src/app/*"],
+      "@collection": ["src/app/collection/*"],
+      "@price": ["src/app/price/*"],
+      "@services": ["src/app/services/*"],
+      "@integrations": ["src/app/integrations/*"],
+    }
   }
 }

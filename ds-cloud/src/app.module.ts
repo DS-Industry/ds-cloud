@@ -4,7 +4,7 @@ import { DeviceModule } from './device/device.module';
 import { VariableModule } from './variable/variable.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
-import { CollectionModule } from './collection/collection.module';
+import { CollectionModule } from './app/collection/collection.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { ExternalModule } from './external/external.module';
 import { ConfigModule } from '@nestjs/config';
@@ -15,6 +15,8 @@ import * as winston from 'winston';
 import { Logtail } from '@logtail/node';
 import { WinstonModule } from 'nest-winston';
 import { LogtailTransport } from '@logtail/winston';
+import { ServicesModule } from './app/services/services.module';
+import { PriceModule } from './app/price/price.module';
 
 const logtail = new Logtail('H8oAoz3TQm3CFZLp6HbUD64j');
 
@@ -45,6 +47,8 @@ const logtail = new Logtail('H8oAoz3TQm3CFZLp6HbUD64j');
     }),
     ExternalModule,
     DatabaseModule,
+    ServicesModule,
+    PriceModule,
   ],
   controllers: [],
   providers: [],

@@ -7,6 +7,7 @@ import { ApiKeyGuard } from '../auth/guard/api-key.guard';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Device, DeviceSchema } from '../device/schema/device.schema';
 import { Variable, VariableSchema } from '../variable/schema/variable.schema';
+import { CollectionModule } from '../app/collection/collection.module';
 
 @Module({
   controllers: [ExternalController],
@@ -16,6 +17,7 @@ import { Variable, VariableSchema } from '../variable/schema/variable.schema';
       { name: Variable.name, schema: VariableSchema },
       { name: Device.name, schema: DeviceSchema },
     ]),
+    CollectionModule,
     DeviceModule,
     VariableModule,
   ],

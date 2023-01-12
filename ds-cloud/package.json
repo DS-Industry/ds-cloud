@@ -101,6 +101,19 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/../src/$1",
+      "^@/common(.*)$": "<rootDir>/../src/common/$1",
+      "^@/enums(.*)$": "<rootDir>/../src/common/enums/$1",
+      "^@/filters(.*)$": "<rootDir>/../src/common/filters/$1",
+      "^@/helpers(.*)$": "<rootDir>/../src/common/helpers/$1",
+      "^@/exceptions(.*)$": "<rootDir>/../src/common/helpers/exceptions/$1",
+      "^@/app(.*)$": "<rootDir>/../src/app/$1",
+      "^@/collection(.*)$": "<rootDir>/../src/app/collection/$1",
+      "^@/price(.*)$": "<rootDir>/../src/app/price/$1",
+      "^@/services(.*)$": "<rootDir>/../src/app/services/$1",
+      "^@/integrations(.*)$": "<rootDir>/../src/app/integrations/$1"
+    }
   }
 }

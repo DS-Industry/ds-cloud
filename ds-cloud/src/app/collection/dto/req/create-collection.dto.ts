@@ -13,7 +13,13 @@ export class CreateCollectionDto {
   @IsNotEmpty({ message: 'City is required ' })
   city: number;
 
-  //@IsString({ message: 'Owner must be of type string' })
-  //@IsNotEmpty({ message: 'Owner is required ' })
-  onwer: string;
+  @IsString({ message: 'Address must be of type string' })
+  @IsNotEmpty({ message: 'Address is required ' })
+  address: string;
+
+  @IsNotEmpty({ message: 'Latitude is required ' })
+  lat: number;
+
+  @IsNotEmpty({ message: 'Longitude is required ' })
+  lon: number;
 }

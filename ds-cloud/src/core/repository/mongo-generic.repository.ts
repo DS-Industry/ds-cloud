@@ -15,7 +15,10 @@ export abstract class MongoGenericRepository<T extends mongoose.Document>
     entityFilterQuery: FilterQuery<T>,
     populateOnFind: string[] = [],
   ): Promise<T[] | null> {
-    return this.entiryModel.find(entityFilterQuery).exec();
+    return this.entiryModel
+      .find(entityFilterQuery)
+      .populate(populateOnFind)
+      .exec();
   }
 
   async findOneAndUpdate(

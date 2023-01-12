@@ -1,32 +1,24 @@
-import {
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-  LoggerService,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ExternalMobileWriteRequest } from './dto/write-mobile-external.dto';
-import { DeviceService } from '../device/device.service';
-import { VariableService } from '../variable/variable.service';
-import { UpdateVariableDto } from '../variable/dto/update-variable.dto';
 import { Variable, VariableDocument } from '../variable/schema/variable.schema';
 import * as moment from 'moment';
 import {
   BusyBayExceptions,
   DeviceInternalException,
   DeviceNetworkException,
-} from '../common/exceptions';
+} from '../common/helpers/exceptions';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Device, DeviceDocument } from '../device/schema/device.schema';
+import { CollectionService } from '../app/collection/collection.service';
+import { DeviceStatus } from '../common/enums/device-status.enum';
 
 @Injectable()
 export class ExternalService {
   constructor(
     @InjectModel(Variable.name) private variableModel: Model<VariableDocument>,
     @InjectModel(Device.name) private deviceModel: Model<DeviceDocument>,
-    private readonly deviceService: DeviceService,
-    private readonly variableService: VariableService,
+    private readonly collectionService: CollectionService,
   ) {}
 
   /**
@@ -44,7 +36,7 @@ export class ExternalService {
 
     const device = await this.deviceModel
       .findOne({ identifier: id })
-      .select({ _id: 1, lastUpdateDate: 1 });
+      .select({ _id: 1, lastUpdateDate: 1, status: 1 });
 
     const currentVar: any[] = await this.variableModel
       .find({ owner: device._id })
@@ -79,6 +71,7 @@ export class ExternalService {
       await this.variableModel.bulkWrite(bulkOps);
     }
 
+    device.status = this.checkDeviceAvailability(currentVar);
     device.lastUpdateDate = updateTime;
     await device.save();
 
@@ -141,24 +134,39 @@ export class ExternalService {
   }
 
   /**
-   * Write data method finds variables by name
-   * update with new values
-   * @param newData
+   * Get list of all collection with their child documents
+   * @param integrationCode
    */
-  public async writeData(newData: any, deviceId: string): Promise<Variable[]> {
-    const successUpdates = [];
-    const updateVariableDto: UpdateVariableDto = new UpdateVariableDto();
+  public async getCollectionList(integrationCode: number) {
+    return await this.collectionService.findAllByIntegration(integrationCode);
+  }
 
-    for (const item of Object.entries(newData)) {
-      updateVariableDto.value = item[1];
-      const updItem = await this.variableService.updateByDeviceId(
-        deviceId,
-        item[0],
-        updateVariableDto,
+  public checkDeviceAvailability(currentVaribales: any[]): DeviceStatus {
+    let status: DeviceStatus = DeviceStatus.FREE;
+
+    currentVaribales.map((item) => {
+      if (item.name == 'GVLErr' && parseInt(item.value) > 0) {
+        status = DeviceStatus.UNAVAILABLE;
+      } else if (item.name == 'GVLTime' && parseInt(item.value) > 0) {
+        status = DeviceStatus.BUSY;
+      } else if (item.name == 'GVLSum' && parseInt(item.value) > 0) {
+        status = DeviceStatus.BUSY;
+      }
+    });
+
+    return status;
+  }
+
+  public async getDeviceByCarwashIdAndBayNumber(
+    carwashId: string,
+    bayNumber: number,
+  ) {
+    const collection =
+      await this.collectionService.getCollectionDeviceByBayNumber(
+        carwashId,
+        bayNumber,
       );
-      successUpdates.unshift(updItem);
-    }
 
-    return successUpdates;
+    return collection;
   }
 }

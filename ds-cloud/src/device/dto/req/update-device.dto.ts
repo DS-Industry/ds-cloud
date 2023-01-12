@@ -1,4 +1,5 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { DeviceStatus } from '../../../common/enums/device-status.enum';
 
 export class UpdateDeviceDto {
   @IsOptional()
@@ -7,7 +8,11 @@ export class UpdateDeviceDto {
 
   @IsOptional()
   @IsNumber()
-  status: number;
+  readonly bayNumber: number;
+
+  @IsOptional()
+  @IsEnum(DeviceStatus)
+  readonly status: DeviceStatus;
 
   @IsOptional()
   @IsString({ message: 'Description must be of type string ' })

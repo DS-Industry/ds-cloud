@@ -11,8 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { DeviceService } from './device.service';
-import { CreateDeviceDto } from './dto/create-device.dto';
-import { UpdateDeviceDto } from './dto/update-device.dto';
+import { CreateDeviceDto } from './dto/req/create-device.dto';
+import { UpdateDeviceDto } from './dto/req/update-device.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { diskStorage } from 'multer';

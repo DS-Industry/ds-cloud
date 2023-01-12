@@ -8,6 +8,7 @@ import {
   UseGuards,
   Inject,
   LoggerService,
+  Query,
 } from '@nestjs/common';
 import { ExternalService } from './external.service';
 import { ExternalMobileWriteRequest } from './dto/write-mobile-external.dto';
@@ -24,6 +25,8 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { GetCollectionListRequest } from './dto/get-collection-list-request.dto';
+import { GetCollectionBayRequest } from './dto/get-collection-bay-request.dto';
 
 @ApiTags('External mobile')
 @ApiSecurity('x-api-key', ['x-api-key'])
@@ -68,5 +71,19 @@ export class ExternalController {
       req.headers,
     );
     return this.externalService.writeMobileData(id, externalMobileWriteRequest);
+  }
+
+  @Get('collection/list')
+  @UseGuards(ApiKeyGuard)
+  getCollectionList(@Query() query: GetCollectionListRequest) {
+    return this.externalService.getCollectionList(+query.code);
+  }
+
+  @Get('collection/device')
+  getCollectionBay(@Query() query: GetCollectionBayRequest) {
+    return this.externalService.getDeviceByCarwashIdAndBayNumber(
+      query.carwashId,
+      +query.bayNumber,
+    );
   }
 }
