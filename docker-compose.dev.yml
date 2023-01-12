@@ -7,6 +7,6 @@ services:
       - ./ds-cloud/src:/usr/app/src
   nginx:
     ports:
-      - "5050:80"
+      - "5051:5051"
     volumes:
       - ./nginx/default.conf.dev:/etc/nginx/conf.d/default.conf
