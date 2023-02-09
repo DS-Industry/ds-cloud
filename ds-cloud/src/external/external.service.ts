@@ -12,12 +12,25 @@ import { Model } from 'mongoose';
 import { Device, DeviceDocument } from '../device/schema/device.schema';
 import { CollectionService } from '../app/collection/collection.service';
 import { DeviceStatus } from '../common/enums/device-status.enum';
+import {
+  Collection,
+  CollectionDocument,
+} from '@/app/collection/Schema/collection.schema';
+import { Price, PriceDocument } from '@/app/price/schema/price.schema';
+import { Service, ServiceDocument } from '@/app/services/schema/service.schema';
+import { DeviceType } from '@/common/enums/device-type.enum';
+import { CostType } from '@/common/enums';
 
 @Injectable()
 export class ExternalService {
   constructor(
     @InjectModel(Variable.name) private variableModel: Model<VariableDocument>,
     @InjectModel(Device.name) private deviceModel: Model<DeviceDocument>,
+    @InjectModel(Collection.name)
+    private collectionModel: Model<CollectionDocument>,
+    @InjectModel(Price.name) private readonly priceModel: Model<PriceDocument>,
+    @InjectModel(Service.name)
+    private readonly serviceModel: Model<ServiceDocument>,
     private readonly collectionService: CollectionService,
   ) {}
 
@@ -168,5 +181,74 @@ export class ExternalService {
       );
 
     return collection;
+  }
+
+  public async fixCollectionDocument() {
+    const devices = await this.deviceModel.find().lean();
+    let updates = 0;
+    const total = devices.length;
+
+    for (const device of devices) {
+      const collection = await this.collectionModel.findOne({
+        _id: device.owner,
+      });
+
+      if (
+        String(device.owner) === String(collection._id) &&
+        collection.devices.indexOf(device._id) == 0
+      ) {
+        collection.devices.push(device);
+        await collection.save();
+        updates += 1;
+      } else {
+        continue;
+      }
+    }
+    return {
+      code: 200,
+      message: 'collections up to date',
+      count: updates,
+      totalDevices: total,
+    };
+  }
+
+  public async writePriceData(deviceId: string, priceData: string) {
+    const device: Device = await this.deviceModel
+      .findOne({
+        identifier: deviceId,
+      })
+      .select({ _id: 1, type: 1 })
+      .lean();
+
+    //Parse data
+    const data = JSON.parse(priceData);
+    const prices = [];
+
+    for (const key in data) {
+      const service = await this.serviceModel
+        .findOne({ id: Number(key) })
+        .lean();
+
+      const costType: CostType =
+        device.type == DeviceType.BAY ? CostType.PERMINUTE : CostType.FIX;
+      const price = await this.priceModel.findOneAndUpdate(
+        { service: service._id },
+        {
+          cost: data[key],
+          collectionId: device.identifier,
+          costType: costType,
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true },
+      );
+
+      prices.push(price._id);
+    }
+
+    await this.deviceModel.updateOne(
+      { _id: device },
+      { $addToSet: { prices: prices } },
+    );
+
+    return { code: 200 };
   }
 }

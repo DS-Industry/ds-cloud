@@ -73,6 +73,12 @@ export class ExternalController {
     return this.externalService.writeMobileData(id, externalMobileWriteRequest);
   }
 
+  @Post('/price/write/:id')
+  writePriceData(@Req() req, @Param('id') id: string) {
+    const data = req.headers.data;
+    return this.externalService.writePriceData(id, data);
+  }
+
   @Get('collection/list')
   @UseGuards(ApiKeyGuard)
   getCollectionList(@Query() query: GetCollectionListRequest) {
@@ -85,5 +91,15 @@ export class ExternalController {
       query.carwashId,
       +query.bayNumber,
     );
+  }
+
+  @Post('/collection/fix')
+  fixCollectionDocument() {
+    return this.externalService.fixCollectionDocument();
+  }
+
+  @Post('/device/fix')
+  fixDeviceDocuments() {
+    return this.fixDeviceDocuments();
   }
 }

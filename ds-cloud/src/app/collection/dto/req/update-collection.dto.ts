@@ -7,6 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 import { CollectionType } from '../../../../common/enums/collection-type.enum';
+import { CreateExistingService } from '@/app/services/dto/req/create-existing-service.dto';
 
 export class UpdateCollectionDto {
   @IsOptional()
@@ -14,7 +15,7 @@ export class UpdateCollectionDto {
   readonly name?: string;
   @IsOptional()
   @IsEnum(CollectionType)
-  type?: CollectionType;
+  readonly type?: CollectionType;
   @IsOptional()
   @IsString({ message: 'Address must be of type string' })
   readonly address?: string;
@@ -27,9 +28,6 @@ export class UpdateCollectionDto {
   @IsOptional()
   @IsArray({ message: 'Must be array of numbers' })
   readonly integrations?: number[];
-  @IsOptional()
-  @IsArray({ message: 'Must be array of numbers' })
-  readonly prices?: number[];
   @IsOptional()
   @IsNumber()
   readonly stepCost?: number;
@@ -45,4 +43,7 @@ export class UpdateCollectionDto {
   @IsOptional()
   @IsNumber()
   readonly lon?: number;
+  @IsOptional()
+  @IsArray()
+  readonly priceList?: CreateExistingService[];
 }

@@ -8,9 +8,12 @@ import { UserModule } from '../../user/user.module';
 import { JwtAuthGuard } from '../../auth/guard/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guard/roles.guard';
 import { CollectionRepository } from './collection.repository';
-import { Integration, IntegrationSchema } from "../integrations/schema/integration.schema";
-import { Price, PriceSchema } from '../price/schema/price.schema';
-import { Service, ServiceSchema } from "../services/schema/service.schema";
+import {
+  Integration,
+  IntegrationSchema,
+} from '../integrations/schema/integration.schema';
+import { Service, ServiceSchema } from '../services/schema/service.schema';
+import { PriceModule } from '@/app/price/price.module';
 
 @Module({
   controllers: [CollectionController],
@@ -25,10 +28,10 @@ import { Service, ServiceSchema } from "../services/schema/service.schema";
       { name: Collection.name, schema: CollectionSchema },
       { name: Integration.name, schema: IntegrationSchema },
       { name: Service.name, schema: ServiceSchema },
-      { name: Price.name, schema: PriceSchema },
     ]),
     CsvModule,
     UserModule,
+    PriceModule,
   ],
   exports: [CollectionService],
 })

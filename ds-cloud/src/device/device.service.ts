@@ -17,7 +17,8 @@ import * as iconv from 'iconv-lite';
 import { DeviceFileModel } from '../utils/device-file-model.util';
 import { DeviceRepository } from './device.repository';
 import { CollectionDocument } from '../app/collection/Schema/collection.schema';
-import { inspect } from 'util';
+import { DeviceStatus } from '@/common/enums';
+import { Device, DeviceDocument } from '@/device/schema/device.schema';
 
 @Injectable()
 export class DeviceService {
@@ -33,20 +34,24 @@ export class DeviceService {
    * @param createDeviceDto
    */
   async create(createDeviceDto: CreateDeviceDto) {
-    const owner = await this.collectionService.findOne(createDeviceDto.owner);
-    const date = moment().toISOString();
+    const { ownerId, ...deviceData } = createDeviceDto;
+    const owner: CollectionDocument =
+      await this.collectionService.findOneByIdentifier(createDeviceDto.ownerId);
+
+    deviceData['date'] = moment().toISOString();
+    deviceData['owner'] = owner._id;
+
+    const device: DeviceDocument = await this.deviceRepository.create(
+      deviceData,
+    );
+
     if (!owner)
-      throw new NotFoundException(
-        `Could not create device for collection: ${createDeviceDto.owner}`,
-      );
+      throw new NotFoundException(`Collection with id ${ownerId} is not found`);
 
-    const data = {
-      ...createDeviceDto,
-      owner: owner.id,
-      registrationDate: date,
-    };
+    owner.devices.push(device._id);
+    await owner.save();
 
-    return await this.deviceRepository.create(data);
+    return device;
   }
 
   /**
@@ -73,27 +78,88 @@ export class DeviceService {
     );
 
     for (const item of data.list) {
-      const owner = await this.collectionService.findOneByIdentifier(
-        item.collection,
-      );
+      const { collection, id, ...deviceData } = item;
+      const owner: CollectionDocument =
+        await this.collectionService.findOneByIdentifier(collection);
       if (!owner) {
         errors.push(item.id);
         continue;
       }
-      const data = {
-        name: item.name,
-        identifier: item.id,
-        owner: owner._id,
-        status: 1,
-        registrationDate: moment().toISOString(),
-      };
+      deviceData['owner'] = owner._id;
+      deviceData['registrationDate'] = moment().toISOString();
+      deviceData['identifier'] = id;
+      deviceData['status'] = DeviceStatus.FREE;
 
-      const device = await this.deviceRepository.create(data);
-      if (!device) throw new InternalServerErrorException('Error on uploading');
+      const device: DeviceDocument = await this.deviceRepository.create(
+        deviceData,
+      );
+
+      owner.devices.push(device._id);
+      await owner.save();
       createCount++;
     }
     fs.unlinkSync(path);
     return { code: HttpStatus.OK, createdItems: createCount, errors: errors };
+  }
+
+  /**
+   * Bulk update devices
+   * @param fileName
+   */
+  async batchUpdate(fileName: string) {
+    //Getting file path from helper method getCsvFile
+    const path = getCSVFile(fileName);
+    //Creating stream. Adding decoding to support Russian language
+    const stream = fs.createReadStream(path).pipe(iconv.decodeStream('utf-8'));
+    const bulkOps = [];
+
+    const data = await this.csvParser.parse(
+      stream,
+      DeviceFileModel,
+      null,
+      null,
+      { separator: ',' },
+    );
+
+    for (const item of data.list) {
+      const updateQuery = {
+        name: item.name,
+        bayNumber: Number(item.bayNumber),
+        status: DeviceStatus.FREE,
+      };
+
+      bulkOps.push({
+        updateOne: {
+          filter: { identifier: item.identifier },
+          update: updateQuery,
+          upsert: true,
+        },
+      });
+    }
+
+    fs.unlinkSync(path);
+
+    return await this.deviceRepository.batchUpdate(bulkOps);
+  }
+
+  /**
+   * Update device by identifier
+   * @param id
+   * @param updateDevice
+   */
+  async findOneAndUpdate(id: string, updateDevice: UpdateDeviceDto) {
+    let updateQuery;
+
+    if (updateDevice.variables) {
+      //Create logic to update variables array
+    } else {
+      updateQuery = { ...updateDevice };
+    }
+
+    return await this.deviceRepository.findOneAndUpdate(
+      { identifier: id },
+      updateQuery,
+    );
   }
 
   /**
@@ -102,7 +168,6 @@ export class DeviceService {
    * Getting all devices from db
    */
   async findAll() {
-
     const devices = await this.deviceRepository.findAll({});
 
     for (const dev of devices) {
@@ -116,8 +181,6 @@ export class DeviceService {
 
       await this.collectionService.findOneAndUpdate(collection._id, dev);
     }
-
-
   }
 
   /**
@@ -132,21 +195,6 @@ export class DeviceService {
 
     if (!device) throw new NotFoundException(`Device with ${id} not found`);
 
-    return device;
-  }
-
-  /**
-   * Get single device by unified identifier
-   * Identifier from ORACLE DB
-   * @param id
-   */
-  async findByIdentifierAndPopulate(identifier: string) {
-    const device = await this.deviceRepository.findOnePopulated(
-      {
-        identifier: identifier,
-      },
-      ['owner', 'variables'],
-    );
     return device;
   }
 

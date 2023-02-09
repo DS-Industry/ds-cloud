@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  HttpException,
   HttpStatus,
   Injectable,
   NotFoundException,
@@ -13,10 +12,7 @@ import { CollectionFileModel } from '../../utils/collection-file-model.utils';
 import { CsvParser } from 'nest-csv-parser';
 import { UserService } from '../../user/user.service';
 import { CollectionRepository } from './collection.repository';
-import { fileExistsAsync } from 'tsconfig-paths/lib/filesystem';
 import { GetAllCollectionsResponse } from './dto/res/get-all-collections-response.dto';
-import { DeviceService } from '../../device/device.service';
-import { Collection, CollectionDocument } from './Schema/collection.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -24,21 +20,23 @@ import {
   IntegrationDocument,
 } from '../integrations/schema/integration.schema';
 import { UpdateCollectionDto } from './dto/req/update-collection.dto';
-import { Price, PriceDocument } from '../price/schema/price.schema';
 import { Service, ServiceDocument } from '../services/schema/service.schema';
+import { CreatePriceRequest } from '@/app/price/dto/req/create-price-request.dto';
+import { BulkWriteResult } from '@/common/dto/bulk-write-result.dto';
+import { PriceService } from '@/app/price/price.service';
+
+//TODO
+//1. Add function to insert price list
 
 @Injectable()
 export class CollectionService {
   constructor(
     @InjectModel(Integration.name)
     private integrationModel: Model<IntegrationDocument>,
-    @InjectModel(Collection.name)
-    private collectionModel: Model<CollectionDocument>,
-    @InjectModel(Price.name)
-    private priceModel: Model<PriceDocument>,
     @InjectModel(Service.name)
     private serviceModel: Model<ServiceDocument>,
     private readonly collectionRepository: CollectionRepository,
+    private readonly priceService: PriceService,
     private readonly userService: UserService,
     private readonly csvParser: CsvParser,
   ) {}
@@ -50,13 +48,21 @@ export class CollectionService {
    * @param userId
    */
   async create(createCollectionDto: CreateCollectionDto, userId: string) {
-    const data = {
-      ...createCollectionDto,
-      owner: userId,
-      isActive: true,
-    };
+    const createPriceReq: CreatePriceRequest = new CreatePriceRequest();
+    let prices: BulkWriteResult;
+    const { priceList, ...collectionData } = createCollectionDto;
 
-    return await this.collectionRepository.create(data);
+    if (createCollectionDto.priceList.length > 0) {
+      createPriceReq.collectionId = +createCollectionDto.identifier;
+      createPriceReq.serviceList = createCollectionDto.priceList;
+      prices = await this.priceService.create(createPriceReq);
+
+      collectionData['prices'] = prices.insertedIds.map((p) => p._id);
+    }
+    collectionData['owner'] = userId;
+    collectionData['isActive'] = true;
+
+    return await this.collectionRepository.create(collectionData);
   }
 
   /**
@@ -133,7 +139,7 @@ export class CollectionService {
   async findOneAndUpdate(id: string, updateCollection: UpdateCollectionDto) {
     let updateQuery;
     let integrations: any[];
-    let prices: any[];
+    let prices: BulkWriteResult;
 
     if (updateCollection.integrations) {
       integrations = await this.integrationModel.find({
@@ -143,17 +149,15 @@ export class CollectionService {
         ...updateCollection,
         integrations,
       };
-    } else if (updateCollection.prices) {
-      const services: Service[] = await this.serviceModel.find({
-        id: { $in: updateCollection.prices },
-      });
-      prices = await this.priceModel.find({
-        service: { $in: services },
-      });
+    } else if (updateCollection.priceList.length > 0) {
+      const createPriceReq: CreatePriceRequest = new CreatePriceRequest();
+      createPriceReq.collectionId = +id;
+      createPriceReq.serviceList = updateCollection.priceList;
+      prices = await this.priceService.create(createPriceReq);
 
       updateQuery = {
         ...updateCollection,
-        prices,
+        prices: prices.insertedIds.map((p) => p._id),
       };
     } else {
       updateQuery = { ...updateCollection };
@@ -165,17 +169,8 @@ export class CollectionService {
     );
   }
 
-  async findOneAndUpdateIntegrations(id: string, code: number) {
-    const collection = await this.collectionRepository.findOneById(id);
-    const integration = await this.integrationModel.findOne({ id: code });
-
-    collection.integrations.push(integration);
-
-    await collection.save();
-  }
-
   /**
-   * Bulk update collections
+   * Bulk update collections from csv
    * @param fileName
    */
   async batchUpdate(fileName: string) {
@@ -192,13 +187,33 @@ export class CollectionService {
     );
 
     for (const item of data.list) {
+      let integrationsIds;
+      let integrations;
+      if (item.integration.length > 0) {
+        integrationsIds = item.integration.split(':').map(Number);
+        integrations = await this.integrationModel
+          .find({
+            id: { $in: integrationsIds },
+          })
+          .lean()
+          .select({ _id: 1, name: 1 });
+      }
+
       const query = {
         city: item.city,
         name: item.name,
         address: item.address,
         lat: item.lat,
         lon: item.lon,
+        type: item.type,
+        limitMaxCost: item.limitMaxCost,
+        limitMinCost: item.limitMinCost,
+        stepCost: item.stepCost,
       };
+
+      if (integrations) {
+        query['$addToSet'] = { integrations: integrations };
+      }
 
       bulkOps.push({
         updateOne: {

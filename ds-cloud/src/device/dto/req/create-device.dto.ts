@@ -8,7 +8,7 @@ export class CreateDeviceDto {
 
   @IsNotEmpty({ message: 'Owner id is required' })
   @IsString({ message: 'Owner id must be of type string ' })
-  owner: string;
+  readonly ownerId: string;
 
   @IsNotEmpty({ message: 'Identifier is required' })
   @IsString({ message: 'Identifier must be of type string' })

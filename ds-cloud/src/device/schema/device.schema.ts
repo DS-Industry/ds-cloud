@@ -3,6 +3,7 @@ import mongoose, { Document } from 'mongoose';
 import { Variable } from '../../variable/schema/variable.schema';
 import { Collection } from '../../app/collection/Schema/collection.schema';
 import { DeviceStatus } from '../../common/enums/device-status.enum';
+import { DeviceType } from '@/common/enums/device-type.enum';
 
 export type DeviceDocument = Device & Document;
 
@@ -37,5 +38,8 @@ export class Device {
 
   @Prop()
   lastUpdateDate: Date;
+
+  @Prop({ type: String, enum: DeviceType })
+  type: DeviceType;
 }
 export const DeviceSchema = SchemaFactory.createForClass(Device);

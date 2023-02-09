@@ -21,7 +21,7 @@ import { JwtAuthGuard } from '../../auth/guard/jwt-auth.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { RolesGuard } from '../../auth/guard/roles.guard';
-import { FileUploadRequest } from './dto/req/file-upload-request.dto';
+import { FileUploadRequest } from '../../common/dto/file-upload-request.dto';
 import { UpdateCollectionDto } from './dto/req/update-collection.dto';
 
 @Controller('collection')

@@ -5,4 +5,9 @@ export class CollectionFileModel {
   address: string;
   lat: number;
   lon: number;
+  integration: number;
+  type: string;
+  limitMaxCost: number;
+  limitMinCost: number;
+  stepCost: number;
 }
