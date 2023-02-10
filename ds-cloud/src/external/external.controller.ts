@@ -93,13 +93,4 @@ export class ExternalController {
     );
   }
 
-  @Post('/collection/fix')
-  fixCollectionDocument() {
-    return this.externalService.fixCollectionDocument();
-  }
-
-  @Post('/device/fix')
-  fixDeviceDocuments() {
-    return this.fixDeviceDocuments();
-  }
 }

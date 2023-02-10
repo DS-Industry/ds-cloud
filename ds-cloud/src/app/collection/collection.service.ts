@@ -24,6 +24,7 @@ import { Service, ServiceDocument } from '../services/schema/service.schema';
 import { CreatePriceRequest } from '@/app/price/dto/req/create-price-request.dto';
 import { BulkWriteResult } from '@/common/dto/bulk-write-result.dto';
 import { PriceService } from '@/app/price/price.service';
+import { DeviceType } from '@/common/enums/device-type.enum';
 
 //TODO
 //1. Add function to insert price list
@@ -75,12 +76,15 @@ export class CollectionService {
       await this.collectionRepository.findCollectionListByIntegration(_id);
 
     const res: GetAllCollectionsResponse[] = collections.map((c, i) => {
-      const boxes: any[] = c.devices.map((d, i) => {
-        return {
-          id: d.identifier,
-          number: d.bayNumber,
-          status: d.status,
-        };
+      const boxes: any[] = [];
+      c.devices.forEach((d, i) => {
+        if (d.type == DeviceType.BAY || d.type == DeviceType.PORTAL) {
+          boxes.push({
+            id: d.identifier,
+            number: d.bayNumber,
+            status: d.status,
+          });
+        }
       });
 
       const prices: any[] = c.prices.map((p, i) => {

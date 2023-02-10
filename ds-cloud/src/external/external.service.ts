@@ -21,6 +21,7 @@ import { Service, ServiceDocument } from '@/app/services/schema/service.schema';
 import { DeviceType } from '@/common/enums/device-type.enum';
 import { CostType } from '@/common/enums';
 
+
 @Injectable()
 export class ExternalService {
   constructor(
@@ -181,35 +182,6 @@ export class ExternalService {
       );
 
     return collection;
-  }
-
-  public async fixCollectionDocument() {
-    const devices = await this.deviceModel.find().lean();
-    let updates = 0;
-    const total = devices.length;
-
-    for (const device of devices) {
-      const collection = await this.collectionModel.findOne({
-        _id: device.owner,
-      });
-
-      if (
-        String(device.owner) === String(collection._id) &&
-        collection.devices.indexOf(device._id) == 0
-      ) {
-        collection.devices.push(device);
-        await collection.save();
-        updates += 1;
-      } else {
-        continue;
-      }
-    }
-    return {
-      code: 200,
-      message: 'collections up to date',
-      count: updates,
-      totalDevices: total,
-    };
   }
 
   public async writePriceData(deviceId: string, priceData: string) {

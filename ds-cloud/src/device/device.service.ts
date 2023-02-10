@@ -179,7 +179,7 @@ export class DeviceService {
 
       if (!collection) continue;
 
-      await this.collectionService.findOneAndUpdate(collection._id, dev);
+      //await this.collectionService.findOneAndUpdate(collection._id, dev);
     }
   }
 
