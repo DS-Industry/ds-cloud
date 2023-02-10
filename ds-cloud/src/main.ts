@@ -52,7 +52,6 @@ async function bootstrap() {
   SwaggerModule.setup('api/v1/docs', app, document);
 
   app.use(cookieParser());
-  app.use(helmet());
 
   await app.listen(process.env.APP_PORT || 3000);
 }
