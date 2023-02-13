@@ -184,7 +184,7 @@ export class ExternalService {
     return collection;
   }
 
-  public async writePriceData(deviceId: string, priceData: string) {
+  public async writePriceData(deviceId: string, data: any) {
     const device: Device = await this.deviceModel
       .findOne({
         identifier: deviceId,
@@ -193,7 +193,6 @@ export class ExternalService {
       .lean();
 
     //Parse data
-    const data = JSON.parse(priceData);
     const prices = [];
 
     for (const key in data) {

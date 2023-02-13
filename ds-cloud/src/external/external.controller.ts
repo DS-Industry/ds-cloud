@@ -76,7 +76,8 @@ export class ExternalController {
   @Post('/price/write/:id')
   writePriceData(@Req() req, @Param('id') id: string) {
     const data = req.headers.data;
-    return this.externalService.writePriceData(id, data);
+    console.log(data);
+    return this.externalService.writePriceData(id, JSON.parse(data));
   }
 
   @Get('collection/list')
@@ -92,5 +93,4 @@ export class ExternalController {
       +query.bayNumber,
     );
   }
-
 }
