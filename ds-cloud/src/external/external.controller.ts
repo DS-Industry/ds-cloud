@@ -73,10 +73,9 @@ export class ExternalController {
     return this.externalService.writeMobileData(id, externalMobileWriteRequest);
   }
 
-  @Post('/price/write/:id')
+  @Get('/price/write/:id')
   writePriceData(@Req() req, @Param('id') id: string) {
     const data = req.headers.data;
-    console.log(data);
     return this.externalService.writePriceData(id, JSON.parse(data));
   }
 

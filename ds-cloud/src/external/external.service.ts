@@ -19,7 +19,7 @@ import {
 import { Price, PriceDocument } from '@/app/price/schema/price.schema';
 import { Service, ServiceDocument } from '@/app/services/schema/service.schema';
 import { DeviceType } from '@/common/enums/device-type.enum';
-import { CostType } from '@/common/enums';
+import {CollectionType, CostType} from '@/common/enums';
 
 
 @Injectable()
@@ -184,29 +184,24 @@ export class ExternalService {
     return collection;
   }
 
-  public async writePriceData(deviceId: string, data: any) {
-    const device: Device = await this.deviceModel
-      .findOne({
-        identifier: deviceId,
-      })
-      .select({ _id: 1, type: 1 })
-      .lean();
+  public async writePriceData(collectionId: string, data: any) {
+    const collection: any = await this.collectionModel.findOne({ identifier: collectionId }).select({ _id: 1, type: 1, identifier: 1});
 
     //Parse data
     const prices = [];
 
     for (const key in data) {
       const service = await this.serviceModel
-        .findOne({ id: Number(key) })
+        .findOne({ id: parseInt(key) })
         .lean();
 
       const costType: CostType =
-        device.type == DeviceType.BAY ? CostType.PERMINUTE : CostType.FIX;
+        collection.type == CollectionType.SELFSERVICE ? CostType.PERMINUTE : CostType.FIX;
       const price = await this.priceModel.findOneAndUpdate(
         { service: service._id },
         {
           cost: data[key],
-          collectionId: device.identifier,
+          collectionId: collection.identifier,
           costType: costType,
         },
         { upsert: true, new: true, setDefaultsOnInsert: true },
@@ -215,8 +210,8 @@ export class ExternalService {
       prices.push(price._id);
     }
 
-    await this.deviceModel.updateOne(
-      { _id: device },
+    await this.collectionModel.updateOne(
+      { _id: collection._id },
       { $addToSet: { prices: prices } },
     );
 
