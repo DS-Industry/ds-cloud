@@ -19,8 +19,7 @@ import {
 import { Price, PriceDocument } from '@/app/price/schema/price.schema';
 import { Service, ServiceDocument } from '@/app/services/schema/service.schema';
 import { DeviceType } from '@/common/enums/device-type.enum';
-import {CollectionType, CostType} from '@/common/enums';
-
+import { CollectionType, CostType } from '@/common/enums';
 
 @Injectable()
 export class ExternalService {
@@ -185,7 +184,9 @@ export class ExternalService {
   }
 
   public async writePriceData(collectionId: string, data: any) {
-    const collection: any = await this.collectionModel.findOne({ identifier: collectionId }).select({ _id: 1, type: 1, identifier: 1});
+    const collection: any = await this.collectionModel
+      .findOne({ identifier: collectionId })
+      .select({ _id: 1, type: 1, identifier: 1 });
 
     //Parse data
     const prices = [];
@@ -196,9 +197,11 @@ export class ExternalService {
         .lean();
 
       const costType: CostType =
-        collection.type == CollectionType.SELFSERVICE ? CostType.PERMINUTE : CostType.FIX;
+        collection.type == CollectionType.SELFSERVICE
+          ? CostType.PERMINUTE
+          : CostType.FIX;
       const price = await this.priceModel.findOneAndUpdate(
-        { service: service._id },
+        { collectionId: collectionId, service: service._id },
         {
           cost: data[key],
           collectionId: collection.identifier,
