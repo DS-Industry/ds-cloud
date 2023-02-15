@@ -31,7 +31,12 @@ export class CollectionRepository extends MongoGenericRepository<CollectionDocum
       .find({
         integrations: _id,
       })
-      .populate('devices')
+      .populate({
+        path: 'devices',
+        options: {
+          sort: { bayNumber: 1 },
+        },
+      })
       .populate({
         path: 'prices',
         populate: {
