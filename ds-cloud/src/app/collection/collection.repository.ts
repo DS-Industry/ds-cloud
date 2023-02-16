@@ -53,7 +53,7 @@ export class CollectionRepository extends MongoGenericRepository<CollectionDocum
       .select({ devices: 1 })
       .populate({
         path: 'devices',
-        select: 'identifier bayNumber status',
+        select: 'identifier bayNumber status lastUpdateDate',
       })
       .lean();
 

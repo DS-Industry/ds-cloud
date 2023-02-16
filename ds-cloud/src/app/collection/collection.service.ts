@@ -25,7 +25,9 @@ import { CreatePriceRequest } from '@/app/price/dto/req/create-price-request.dto
 import { BulkWriteResult } from '@/common/dto/bulk-write-result.dto';
 import { PriceService } from '@/app/price/price.service';
 import { DeviceType } from '@/common/enums/device-type.enum';
-
+import { DeviceStatus } from '@/common/enums';
+import * as moment from 'moment/moment';
+import { DeviceNetworkException } from '@/common/helpers/exceptions';
 //TODO
 //1. Add function to insert price list
 
@@ -123,10 +125,20 @@ export class CollectionService {
    * @param bayNumber
    */
   async getCollectionDeviceByBayNumber(id: string, bayNumber: number) {
-    return await this.collectionRepository.getCollectionDeviceByBayNumber(
-      id,
-      bayNumber,
-    );
+    const device =
+      await this.collectionRepository.getCollectionDeviceByBayNumber(
+        id,
+        bayNumber,
+      );
+
+    const { lastUpdateDate, ...rest } = device;
+
+    const timeDiff = moment().diff(lastUpdateDate, 'minutes');
+    if (timeDiff >= 3) {
+      throw new DeviceNetworkException(`carwash bay ${bayNumber}`);
+    }
+
+    return rest;
   }
 
   async findOneByIdentifier(identifier: string) {
