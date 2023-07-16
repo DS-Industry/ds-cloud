@@ -83,6 +83,13 @@ export class CollectionController {
     return this.collectionService.findAllByIntegration(+code);
   }
 
+  @Get('/integration/group/:code')
+  @Roles(Role.ADMIN, Role.USER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  findAllLocationGroup(@Param('code') code: string) {
+    return this.collectionService.findAllByIntegrationLocationGroup(+code);
+  }
+
   //Get collection by authenticated user
   @Get('/mine')
   @Roles(Role.ADMIN, Role.USER)

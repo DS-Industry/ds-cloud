@@ -86,6 +86,12 @@ export class ExternalController {
     return this.externalService.getCollectionList(+query.code);
   }
 
+  @Get('collection/group/list')
+  @UseGuards(ApiKeyGuard)
+  getCollectionListGrouped(@Query() query: GetCollectionListRequest) {
+    return this.externalService.getCollectionListLocationGroup(+query.code);
+  }
+
   @Get('collection/device')
   getCollectionBay(@Query() query: GetCollectionBayRequest) {
     return this.externalService.getDeviceByCarwashIdAndBayNumber(

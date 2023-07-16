@@ -154,6 +154,12 @@ export class ExternalService {
     return await this.collectionService.findAllByIntegration(integrationCode);
   }
 
+  public async getCollectionListLocationGroup(integrationCode: number) {
+    return await this.collectionService.findAllByIntegrationLocationGroup(
+      integrationCode,
+    );
+  }
+
   public checkDeviceAvailability(currentVaribales: any[]): DeviceStatus {
     let status: DeviceStatus = DeviceStatus.FREE;
 

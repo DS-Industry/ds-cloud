@@ -119,6 +119,69 @@ export class CollectionService {
     return res;
   }
 
+  async findAllByIntegrationLocationGroup(code: number) {
+    const integrations = await this.integrationModel.findOne({ id: code });
+    const { _id } = integrations;
+    const collections =
+      await this.collectionRepository.findCollectionListByIntegration(_id);
+    console.log('here');
+    const groupedCarwashes = new Map<string, any>();
+
+    collections.forEach((c, i) => {
+      const locationKey = `${c.lat},${c.lon}`;
+
+      if (!groupedCarwashes.has(locationKey)) {
+        groupedCarwashes.set(locationKey, {
+          location: {
+            lat: c.lat,
+            lon: c.lon,
+          },
+          carwashes: [],
+        });
+      }
+
+      const boxes: any[] = [];
+      c.devices.forEach((d, i) => {
+        if (d.type === DeviceType.BAY || d.type === DeviceType.PORTAL) {
+          boxes.push({
+            id: d.identifier,
+            number: d.bayNumber,
+            status: d.status,
+          });
+        }
+      });
+
+      const prices: any[] = c.prices.map((p, i) => {
+        return {
+          id: p.service.id,
+          name: p.service.name,
+          description: p.service.description,
+          cost: p.cost,
+          costType: p.costType,
+        };
+      });
+
+      const carwash = {
+        id: c.identifier,
+        name: c.name,
+        address: c.address,
+        isActive: c.isActive,
+        type: c.type,
+        stepCost: c.stepCost,
+        limitMinCost: c.limitMinCost,
+        limitMaxCost: c.limitMaxCost,
+        boxes: boxes,
+        price: prices,
+      };
+
+      const group = groupedCarwashes.get(locationKey);
+      group.carwashes.push(carwash);
+    });
+
+    const res = Array.from(groupedCarwashes.values());
+    return res;
+  }
+
   /**
    * Get Collection Bay by bay number
    * @param id
