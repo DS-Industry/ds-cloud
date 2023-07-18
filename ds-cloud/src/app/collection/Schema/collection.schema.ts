@@ -5,6 +5,7 @@ import { Device } from '../../../device/schema/device.schema';
 import { Integration } from '../../integrations/schema/integration.schema';
 import { Price } from '../../price/schema/price.schema';
 import { CollectionType } from '../../../common/enums/collection-type.enum';
+import { Tag } from '@/app/tags/Schema/tags.schema';
 
 export type CollectionDocument = Collection & Document;
 
@@ -33,6 +34,9 @@ export class Collection {
 
   @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Integration' })
   integrations: Integration[];
+
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Tag' })
+  tags: Tag[];
 
   @Prop({ default: 0 })
   stepCost: number;

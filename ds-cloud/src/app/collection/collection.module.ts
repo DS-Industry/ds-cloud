@@ -14,6 +14,7 @@ import {
 } from '../integrations/schema/integration.schema';
 import { Service, ServiceSchema } from '../services/schema/service.schema';
 import { PriceModule } from '@/app/price/price.module';
+import { TagsModule } from '@/app/tags/tags.module';
 
 @Module({
   controllers: [CollectionController],
@@ -32,6 +33,7 @@ import { PriceModule } from '@/app/price/price.module';
     CsvModule,
     UserModule,
     PriceModule,
+    TagsModule,
   ],
   exports: [CollectionService],
 })

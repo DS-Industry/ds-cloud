@@ -28,6 +28,7 @@ import { DeviceType } from '@/common/enums/device-type.enum';
 import { DeviceStatus } from '@/common/enums';
 import * as moment from 'moment/moment';
 import { DeviceNetworkException } from '@/common/helpers/exceptions';
+import { TagsService } from '@/app/tags/tags.service';
 //TODO
 //1. Add function to insert price list
 
@@ -42,6 +43,7 @@ export class CollectionService {
     private readonly priceService: PriceService,
     private readonly userService: UserService,
     private readonly csvParser: CsvParser,
+    private readonly tagService: TagsService,
   ) {}
 
   /**
@@ -124,7 +126,6 @@ export class CollectionService {
     const { _id } = integrations;
     const collections =
       await this.collectionRepository.findCollectionListByIntegration(_id);
-    console.log('here');
     const groupedCarwashes = new Map<string, any>();
 
     collections.forEach((c, i) => {
@@ -160,6 +161,12 @@ export class CollectionService {
           costType: p.costType,
         };
       });
+      const tags: any[] = c.tags.map((t, i) => {
+        return {
+          name: t.name,
+          color: t.color,
+        };
+      });
 
       const carwash = {
         id: c.identifier,
@@ -172,6 +179,7 @@ export class CollectionService {
         limitMaxCost: c.limitMaxCost,
         boxes: boxes,
         price: prices,
+        tags: tags,
       };
 
       const group = groupedCarwashes.get(locationKey);
@@ -370,6 +378,24 @@ export class CollectionService {
       );
 
     return collections;
+  }
+
+  /**
+   * Add tag to collection
+   */
+  async addTag(identifier: string, tagName: string) {
+    const tag = await this.tagService.findOneByName(tagName);
+
+    if (!tag) throw new NotFoundException(`Tag ${tagName}`);
+
+    return await this.collectionRepository.findOneAndUpdate(
+      {
+        identifier,
+      },
+      {
+        $addToSet: { tags: tag._id },
+      },
+    );
   }
 
   /**

@@ -44,6 +44,9 @@ export class CollectionRepository extends MongoGenericRepository<CollectionDocum
           model: 'Service',
         },
       })
+      .populate({
+        path: 'tags',
+      })
       .exec();
   }
 

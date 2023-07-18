@@ -17,6 +17,7 @@ import { WinstonModule } from 'nest-winston';
 import { LogtailTransport } from '@logtail/winston';
 import { ServicesModule } from './app/services/services.module';
 import { PriceModule } from './app/price/price.module';
+import { TagsModule } from './app/tags/tags.module';
 
 const logtail = new Logtail('H8oAoz3TQm3CFZLp6HbUD64j');
 
@@ -49,6 +50,7 @@ const logtail = new Logtail('H8oAoz3TQm3CFZLp6HbUD64j');
     DatabaseModule,
     ServicesModule,
     PriceModule,
+    TagsModule,
   ],
   controllers: [],
   providers: [],

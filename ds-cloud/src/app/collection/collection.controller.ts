@@ -23,6 +23,7 @@ import { Role } from '../../common/enums/role.enum';
 import { RolesGuard } from '../../auth/guard/roles.guard';
 import { FileUploadRequest } from '../../common/dto/file-upload-request.dto';
 import { UpdateCollectionDto } from './dto/req/update-collection.dto';
+import { AddTag } from '@/app/collection/dto/req/add-tag.dto';
 
 @Controller('collection')
 export class CollectionController {
@@ -97,6 +98,13 @@ export class CollectionController {
   getCollectionByOwner(@Req() req) {
     const { user } = req;
     return this.collectionService.getCollectionsByOwner(user._id);
+  }
+
+  @Post('/tag/add')
+  @Roles(Role.ADMIN, Role.USER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  addTag(@Body() body: AddTag) {
+    return this.collectionService.addTag(body.identifier, body.tagName);
   }
 
   //Get single collection by id
