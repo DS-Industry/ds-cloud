@@ -2,8 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePriceRequest } from '@/app/price/dto/req/create-price-request.dto';
 import { PriceRepository } from '@/app/price/price.repository';
 import { ServicesService } from '@/app/services/services.service';
-import { CostType } from '@/common/enums';
-import { BulkWriteResult } from '@/common/dto/bulk-write-result.dto';
+import { UpdatePriceRequestDto } from '@/app/price/dto/req/update-price-request.dto';
 
 //TODO
 //1. Test create function
@@ -45,6 +44,8 @@ export class PriceService {
           (s) => s.serviceId === service.id,
         )[0].costType,
         service: service._id,
+        serviceInfo: createPriceReq.serviceInfo,
+        serviceDuration: createPriceReq.serviceDuration,
         lastUpdateDate: new Date(Date.now()),
       };
 
@@ -56,6 +57,34 @@ export class PriceService {
     }
 
     return await this.priceRepository.batchInsert(bulkIns);
+  }
+
+  async update(updatePriceReqs: UpdatePriceRequestDto) {
+    const service = await this.servicesService.findOneByFilter({
+      _id: updatePriceReqs.serviceObjectId,
+    });
+
+    if (!service)
+      throw new NotFoundException(
+        `Service with this ids ${updatePriceReqs.serviceObjectId} not found`,
+      );
+
+    const existingPrice = await this.priceRepository.findOneByFilter({
+      collectionId: updatePriceReqs.collectionId,
+      service: service._id,
+    });
+
+    if (!existingPrice) {
+      throw new NotFoundException('Price not found');
+    }
+
+    const updatedPrice = Object.assign(existingPrice, { ...updatePriceReqs });
+
+    return await this.priceRepository.updateOne(
+      updatePriceReqs.collectionId,
+      service._id,
+      updatedPrice,
+    );
   }
 
   /**

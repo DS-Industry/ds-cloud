@@ -156,6 +156,8 @@ export class CollectionService {
         return {
           id: p.service.id,
           name: p.service.name,
+          serviceInfo: p.serviceInfo,
+          serviceDuration: p.serviceDuration,
           description: p.service.description,
           cost: p.cost,
           costType: p.costType,

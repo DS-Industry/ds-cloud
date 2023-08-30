@@ -13,6 +13,10 @@ export class ServicesService {
     return await this.serviceRepository.findOneByFilter({ id: id });
   }
 
+  async findOneByFilter(filter: any) {
+    return await this.serviceRepository.findOneByFilter(filter);
+  }
+
   async findServicesListById(servicesId: number[]) {
     return await this.serviceRepository.findServicesListByIds(servicesId);
   }

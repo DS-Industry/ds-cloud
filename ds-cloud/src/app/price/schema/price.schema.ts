@@ -16,6 +16,12 @@ export class Price {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Service' })
   service: Service;
 
+  @Prop({ type: [String] })
+  serviceInfo: string[];
+
+  @Prop({ type: Number })
+  serviceDuration: number;
+
   @Prop({ required: true })
   collectionId: string;
 
