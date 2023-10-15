@@ -121,6 +121,35 @@ export class CollectionService {
     return res;
   }
 
+  async getCollectionWithFilters(code: number, filters: string[]) {
+    const integrations = await this.integrationModel.findOne({ id: code });
+    const { _id } = integrations;
+    const collections =
+      await this.collectionRepository.findCollectionListByIntegration(_id);
+  }
+
+  async getCollectionWithSearch(code: number, search: string) {
+    const integrations = await this.integrationModel.findOne({ id: code });
+    const { _id } = integrations;
+
+    const options = {
+      integrations: integrations._id,
+      $or: [
+        {
+          name: new RegExp(search.toString(), 'i'),
+        },
+        {
+          address: new RegExp(search.toString(), 'i'),
+        },
+      ],
+    };
+
+    const collections =
+      await this.collectionRepository.findCollectionsWithOptions(options);
+
+    return this.formatCollectionArray(collections);
+  }
+
   async findAllByIntegrationLocationGroup(code: number) {
     const integrations = await this.integrationModel.findOne({ id: code });
     const { _id } = integrations;
@@ -412,5 +441,71 @@ export class CollectionService {
       );
 
     return { code: HttpStatus.OK, message: 'Success' };
+  }
+
+  public formatCollectionArray(collections) {
+    const groupedCarwashes = new Map<string, any>();
+
+    collections.forEach((c, i) => {
+      const locationKey = `${c.lat},${c.lon}`;
+
+      if (!groupedCarwashes.has(locationKey)) {
+        groupedCarwashes.set(locationKey, {
+          location: {
+            lat: c.lat,
+            lon: c.lon,
+          },
+          carwashes: [],
+        });
+      }
+
+      const boxes: any[] = [];
+      c.devices.forEach((d, i) => {
+        if (d.type === DeviceType.BAY || d.type === DeviceType.PORTAL) {
+          boxes.push({
+            id: d.identifier,
+            number: d.bayNumber,
+            status: d.status,
+          });
+        }
+      });
+
+      const prices: any[] = c.prices.map((p, i) => {
+        return {
+          id: p.service.id,
+          name: p.service.name,
+          serviceInfo: p.serviceInfo,
+          serviceDuration: p.serviceDuration,
+          description: p.service.description,
+          cost: p.cost,
+          costType: p.costType,
+        };
+      });
+      const tags: any[] = c.tags.map((t, i) => {
+        return {
+          name: t.name,
+          color: t.color,
+        };
+      });
+
+      const carwash = {
+        id: c.identifier,
+        name: c.name,
+        address: c.address,
+        isActive: c.isActive,
+        type: c.type,
+        stepCost: c.stepCost,
+        limitMinCost: c.limitMinCost,
+        limitMaxCost: c.limitMaxCost,
+        boxes: boxes,
+        price: prices,
+        tags: tags,
+      };
+
+      const group = groupedCarwashes.get(locationKey);
+      group.carwashes.push(carwash);
+    });
+
+    return Array.from(groupedCarwashes.values());
   }
 }

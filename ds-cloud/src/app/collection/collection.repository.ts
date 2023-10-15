@@ -26,6 +26,30 @@ export class CollectionRepository extends MongoGenericRepository<CollectionDocum
       .exec();
   }
 
+  async findCollectionsWithOptions(
+    options: object,
+  ) {
+    return this.entiryModel
+      .find(options)
+      .populate({
+        path: 'devices',
+        options: {
+          sort: { bayNumber: 1 },
+        },
+      })
+      .populate({
+        path: 'prices',
+        populate: {
+          path: 'service',
+          model: 'Service',
+        },
+      })
+      .populate({
+        path: 'tags',
+      })
+      .exec();
+  }
+
   async findCollectionListByIntegration(_id: Types.ObjectId) {
     return this.entiryModel
       .find({

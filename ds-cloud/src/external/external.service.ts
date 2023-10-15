@@ -160,6 +160,13 @@ export class ExternalService {
     );
   }
 
+  public async getCarwashesWithSearch(integrationCode: number, search: string) {
+    return await this.collectionService.getCollectionWithSearch(
+      integrationCode,
+      search,
+    );
+  }
+
   public checkDeviceAvailability(currentVaribales: any[]): DeviceStatus {
     let status: DeviceStatus = DeviceStatus.FREE;
 

@@ -27,7 +27,7 @@ import {
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { GetCollectionListRequest } from './dto/get-collection-list-request.dto';
 import { GetCollectionBayRequest } from './dto/get-collection-bay-request.dto';
-
+import { SearchFilterDto } from '@/external/dto/search-filter.dto';
 
 @ApiTags('External mobile')
 @ApiSecurity('x-api-key', ['x-api-key'])
@@ -90,6 +90,16 @@ export class ExternalController {
   @UseGuards(ApiKeyGuard)
   getCollectionListGrouped(@Query() query: GetCollectionListRequest) {
     return this.externalService.getCollectionListLocationGroup(+query.code);
+  }
+
+  @Get('onvi/carwashes')
+  //@UseGuards(ApiKeyGuard)
+  getCollectionsFiltered(@Query() searchFilterDto: SearchFilterDto) {
+    const { code, search, filter } = searchFilterDto;
+
+    // add filtering request
+    if (!search) return;
+    return this.externalService.getCarwashesWithSearch(+code, search);
   }
 
   @Get('collection/device')
