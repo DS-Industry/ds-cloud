@@ -26,9 +26,7 @@ export class CollectionRepository extends MongoGenericRepository<CollectionDocum
       .exec();
   }
 
-  async findCollectionsWithOptions(
-    options: object,
-  ) {
+  async findCollectionsWithOptions(options: object) {
     return this.entiryModel
       .find(options)
       .populate({

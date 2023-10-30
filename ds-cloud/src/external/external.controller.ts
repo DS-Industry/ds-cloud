@@ -93,13 +93,21 @@ export class ExternalController {
   }
 
   @Get('onvi/carwashes')
-  //@UseGuards(ApiKeyGuard)
-  getCollectionsFiltered(@Query() searchFilterDto: SearchFilterDto) {
+  @UseGuards(ApiKeyGuard)
+  async getCollectionsFiltered(@Query() searchFilterDto: SearchFilterDto) {
     const { code, search, filter } = searchFilterDto;
+    let searchParam = search;
+    let filterParam = filter;
 
-    // add filtering request
-    if (!search) return;
-    return this.externalService.getCarwashesWithSearch(+code, search);
+    if (!search) searchParam = null;
+
+    if (!filter) filterParam = '';
+
+    return await this.externalService.getCarWashesWithSearchAndFilters(
+      +code,
+      searchParam,
+      this.stringToObject(filterParam),
+    );
   }
 
   @Get('collection/device')
@@ -108,5 +116,26 @@ export class ExternalController {
       query.carwashId,
       +query.bayNumber,
     );
+  }
+
+  private stringToObject(inputString) {
+    const pairs = inputString.split(',');
+    const resultObject = {};
+
+    for (const pair of pairs) {
+      const [key, value] = pair.split(':');
+
+      if (resultObject[key]) {
+        if (Array.isArray(resultObject[key])) {
+          resultObject[key].push(value);
+        } else {
+          resultObject[key] = [resultObject[key], value];
+        }
+      } else {
+        resultObject[key] = value;
+      }
+    }
+
+    return resultObject;
   }
 }

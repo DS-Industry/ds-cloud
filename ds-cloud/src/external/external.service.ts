@@ -160,10 +160,15 @@ export class ExternalService {
     );
   }
 
-  public async getCarwashesWithSearch(integrationCode: number, search: string) {
-    return await this.collectionService.getCollectionWithSearch(
+  public async getCarWashesWithSearchAndFilters(
+    integrationCode: number,
+    search: string,
+    filter: { [key: string]: any | undefined },
+  ) {
+    return await this.collectionService.getCollectionsWithSearchAndFilters(
       integrationCode,
       search,
+      filter,
     );
   }
 

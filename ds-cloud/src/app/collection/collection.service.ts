@@ -121,34 +121,47 @@ export class CollectionService {
     return res;
   }
 
-  async getCollectionWithFilters(code: number, filters: string[]) {
+  /**
+   * Search and filtering function
+   * @param code
+   * @param search
+   * @param filter
+   */
+  async getCollectionsWithSearchAndFilters(
+    code: number,
+    search: string,
+    filter: { [key: string]: any | undefined },
+  ) {
     const integrations = await this.integrationModel.findOne({ id: code });
     const { _id } = integrations;
-    const collections =
-      await this.collectionRepository.findCollectionListByIntegration(_id);
-  }
 
-  async getCollectionWithSearch(code: number, search: string) {
-    const integrations = await this.integrationModel.findOne({ id: code });
-    const { _id } = integrations;
+    const { tags, ...rest } = filter;
 
-    const options = {
-      integrations: integrations._id,
-      $or: [
-        {
-          name: new RegExp(search.toString(), 'i'),
-        },
-        {
-          address: new RegExp(search.toString(), 'i'),
-        },
-      ],
+    const options: any = {
+      integrations: _id,
+      ...rest,
     };
+
+    if (search && search.trim() !== '') {
+      options.$or = [
+        { name: new RegExp(search, 'i') },
+        { address: new RegExp(search, 'i') },
+      ];
+    }
+
+    if (tags && tags.length > 0) {
+      const tagsArray = await this.tagService.findOneByOptions({
+        name: { $in: tags },
+      });
+      options.tags = { $all: tagsArray };
+    }
 
     const collections =
       await this.collectionRepository.findCollectionsWithOptions(options);
 
     return this.formatCollectionArray(collections);
   }
+
 
   async findAllByIntegrationLocationGroup(code: number) {
     const integrations = await this.integrationModel.findOne({ id: code });

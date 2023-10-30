@@ -10,4 +10,7 @@ export class TagsRepository extends MongoGenericRepository<TagsDocument> {
     super(tagModel);
   }
 
+  async findByOptions(options: object) {
+    return this.entiryModel.find(options).exec();
+  }
 }

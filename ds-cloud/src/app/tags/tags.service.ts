@@ -21,4 +21,8 @@ export class TagsService {
       name: name,
     });
   }
+
+  async findOneByOptions(options: object): Promise<any> {
+    return await this.tagsRepository.findByOptions(options);
+  }
 }

@@ -1,5 +1,5 @@
 export enum CollectionType {
   SELFSERVICE = 'SelfService',
-  PORTAL = 'Potal',
+  PORTAL = 'Portal',
   TUNNEL = 'Tunnel',
 }
