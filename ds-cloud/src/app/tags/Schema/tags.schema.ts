@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, {Document, model} from 'mongoose';
 
 export type TagsDocument = Tag & Document;
 
@@ -13,3 +13,5 @@ export class Tag {
 }
 
 export const TagSchema = SchemaFactory.createForClass(Tag);
+
+export const TagModel = model('tag', TagSchema)

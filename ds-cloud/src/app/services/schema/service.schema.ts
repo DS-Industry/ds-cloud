@@ -1,4 +1,4 @@
-import { Document } from 'mongoose';
+import {Document, model} from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 export type ServiceDocument = Service & Document;
@@ -15,3 +15,5 @@ export class Service {
   description: string;
 }
 export const ServiceSchema = SchemaFactory.createForClass(Service);
+
+export const ServiceModel = model('service', ServiceSchema)

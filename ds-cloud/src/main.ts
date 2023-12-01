@@ -8,8 +8,35 @@ import * as compression from 'compression';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import helmet from 'helmet';
+import express from 'express'
+import {model} from "mongoose";
+import {CollectionModel, CollectionSchema} from "@/app/collection/Schema/collection.schema";
+import mongoose from 'mongoose'
+import {DatabaseService} from "@/database/database.service";
+import {DeviceModel, DeviceSchema} from "@/device/schema/device.schema";
+import {UserModel, UserSchema} from "@/user/schema/user.schema";
+import {BrandModel, BrandSchema} from "@/app/brand/schema/brand.schema";
+import {Integration, IntegrationModel, IntegrationSchema} from "@/app/integrations/schema/integration.schema";
+import * as util from 'util';
+import * as path from 'path';
+import {PriceModel} from "@/app/price/schema/price.schema";
+import {ServiceModel} from "@/app/services/schema/service.schema";
+import {TagModel} from "@/app/tags/Schema/tags.schema";
+import {VariableModel} from "@/variable/schema/variable.schema";
 
+async function preloadAdminJSModules() {
+    const [AdminJS, AdminJSExpress, AdminJSMongoose] = await Promise.all([
+        import('adminjs'),
+        import('@adminjs/express'),
+        import('@adminjs/mongoose'),
+    ]);
+
+    AdminJS.default.registerAdapter({
+        Resource: AdminJSMongoose.Resource,
+        Database: AdminJSMongoose.Database,
+    });
+    return { AdminJS, AdminJSExpress, AdminJSMongoose };
+}
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useGlobalPipes(new ValidationPipe());
@@ -53,6 +80,23 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
+
+    await mongoose.connect('mongodb://cwash:Daster14@rc1a-457hoykx92586xdl.mdb.yandexcloud.net:27018/cloud-core-prod?replicaSet=rs01&authSource=cloud-core-prod', {
+        ssl: true,
+        sslCA: path.join(__dirname, '..', 'ssl', 'root.crt'),
+    })
+    const { AdminJS, AdminJSExpress, AdminJSMongoose } = await preloadAdminJSModules();
+    const adminOptions = {
+        // We pass Category to `resources`
+        resources: [IntegrationModel, CollectionModel, BrandModel, PriceModel, ServiceModel, TagModel, DeviceModel, UserModel, VariableModel],
+    }
+
+    const admin = new AdminJS.default(adminOptions);
+
+    const adminRouter = AdminJSExpress.default.buildRouter(admin);
+    app.use(admin.options.rootPath, adminRouter);
+
   await app.listen(process.env.APP_PORT || 3000);
+
 }
 bootstrap();

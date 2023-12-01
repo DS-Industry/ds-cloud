@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, {Document, model} from 'mongoose';
 import { Variable } from '../../variable/schema/variable.schema';
 import { Collection } from '../../app/collection/Schema/collection.schema';
 import { DeviceStatus } from '../../common/enums/device-status.enum';
@@ -18,13 +18,13 @@ export class Device {
   @Prop()
   bayNumber: number;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Collection' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'collection' })
   owner: Collection;
 
   @Prop()
   description: string;
 
-  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Variable' })
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'variable' })
   variables: Variable[];
 
   @Prop({ type: String, enum: DeviceStatus, default: DeviceStatus.UNAVAILABLE })
@@ -43,3 +43,5 @@ export class Device {
   type: DeviceType;
 }
 export const DeviceSchema = SchemaFactory.createForClass(Device);
+
+export const DeviceModel = model('device', DeviceSchema)
