@@ -12,7 +12,7 @@ export class Variable {
   @Prop()
   description: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'device' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'device'})
   owner: Device;
 
   @Prop()
