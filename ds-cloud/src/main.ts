@@ -19,8 +19,9 @@ import {PriceModel} from "@/app/price/schema/price.schema";
 import {ServiceModel} from "@/app/services/schema/service.schema";
 import {TagModel} from "@/app/tags/Schema/tags.schema";
 import {VariableModel} from "@/variable/schema/variable.schema";
-import {UserJsModel} from "@/userAdminJs";
+import {UserJsModel} from "@/userAdminJs/userAdminJs";
 import * as bcrypt from 'bcryptjs';
+import {DatabaseService} from "@/database/database.service";
 async function preloadAdminJSModules() {
     const [AdminJS, AdminJSExpress, AdminJSMongoose] = await Promise.all([
         import('adminjs'),
@@ -77,10 +78,11 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
-
-    await mongoose.connect('mongodb://cwash:Daster14@rc1a-457hoykx92586xdl.mdb.yandexcloud.net:27018/cloud-core-dev?replicaSet=rs01&authSource=cloud-core-dev', {
-        ssl: true,
-        sslCA: path.join(__dirname, '..', 'ssl', 'root.crt'),
+    const dataService = app.get(DatabaseService);
+    const mongooseOptions = dataService.createMongooseOptions();
+    await mongoose.connect(mongooseOptions.uri, {
+        ssl: mongooseOptions.ssl,
+        sslCA: mongooseOptions.sslCA,
     })
     const { AdminJS, AdminJSExpress, AdminJSMongoose } = await preloadAdminJSModules();
     const canModifyUsers = ({ currentAdmin }) => currentAdmin && currentAdmin.role === 'admin'
