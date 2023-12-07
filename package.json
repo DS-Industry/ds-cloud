@@ -1,13 +1,8 @@
 {
   "dependencies": {
-    "@admin-bro/express": "^3.1.0",
-    "@admin-bro/mongoose": "^1.1.0",
-    "@admin-bro/nestjs": "^1.1.0",
-    "@admin-bro/typeorm": "^1.4.0",
     "@adminjs/express": "^6.1.0",
     "@adminjs/mongoose": "^4.0.0",
     "@nestjs/typeorm": "^10.0.1",
-    "admin-bro": "^4.0.1",
     "adminjs": "^7.4.2",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",

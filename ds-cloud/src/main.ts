@@ -8,18 +8,9 @@ import * as compression from 'compression';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import {CollectionModel, CollectionSchema} from "@/app/collection/Schema/collection.schema";
 import mongoose from 'mongoose'
-import {Device, DeviceModel, DeviceSchema} from "@/device/schema/device.schema";
-import {UserModel, UserSchema} from "@/user/schema/user.schema";
-import {BrandModel, BrandSchema} from "@/app/brand/schema/brand.schema";
-import {Integration, IntegrationModel, IntegrationSchema} from "@/app/integrations/schema/integration.schema";
-import * as path from 'path';
-import {PriceModel} from "@/app/price/schema/price.schema";
-import {ServiceModel} from "@/app/services/schema/service.schema";
-import {TagModel} from "@/app/tags/Schema/tags.schema";
-import {VariableModel} from "@/variable/schema/variable.schema";
-import {UserJsModel} from "@/userAdminJs/userAdminJs";
+const adminOptions = require('./adminJs/admin-options');
+import {UserJsModel} from "@/adminJs/userAdminJs";
 import * as bcrypt from 'bcryptjs';
 import {DatabaseService} from "@/database/database.service";
 async function preloadAdminJSModules() {
@@ -85,133 +76,7 @@ async function bootstrap() {
         sslCA: mongooseOptions.sslCA,
     })
     const { AdminJS, AdminJSExpress, AdminJSMongoose } = await preloadAdminJSModules();
-    const canModifyUsers = ({ currentAdmin }) => currentAdmin && currentAdmin.role === 'admin'
-    const adminOptions = {
-        // We pass Category to `resources`
-        resources: [
-            IntegrationModel,
-            {resource: PriceModel,
-                options: {
-                    properties: {
-                        costType:{
-                            isRequired: true,
-                        },
-                        service:{
-                            isRequired: true,
-                        },
-                        collectionId: {
-                            description: 'Id - как в CW',
-                        },
-                    }
-                }
-            },
-            BrandModel,
-            {resource: CollectionModel,
-                options: {
-                    properties: {
-                        owner: {
-                            isRequired: true,
-                        },
-                        identifier: {
-                            description: 'Id - как в CW',
-                        },
-                        address: {
-                            isRequired: true,
-                        },
-                        lat: {
-                            isRequired: true,
-                            description: 'Широта',
-                        },
-                        lon: {
-                            isRequired: true,
-                            description: 'Долгота',
-                        },
-                    }
-                }
-            },
-            ServiceModel,
-            TagModel,
-            {resource: DeviceModel,
-                options: {
-                    properties: {
-                        name: {
-                            isRequired: true,
-                            isTitle: false,
-                        },
-                        identifier: {
-                            isRequired: true,
-                            isTitle: true,
-                            description: 'Id - как в CW',
-                        },
-                        bayNumber: {
-                            isRequired: true,
-                        },
-                        owner: {
-                            isRequired: true,
-                            description: 'Мойка',
-                        },
-                    }
-                }
-            },
-            UserModel,
-            { resource:VariableModel,
-                options: {
-                    properties: {
-                        name: {
-                            isTitle: false,
-                            availableValues: [
-                                { value: 'GVLSum', label: 'GVLSum' },
-                                { value: 'GVLErr', label: 'GVLErr' },
-                                { value: 'GVLCardNum', label: 'GVLCardNum' },
-                                { value: 'GVLCardSum', label: 'GVLCardSum' },
-                                { value: 'GVLTime', label: 'GVLTime' },
-                                { value: 'GVLSource', label: 'GVLSource' },
-                            ],
-                        },
-                        owner: {
-                            isTitle: true,
-                        },
-                    }
-                }
-            },
-            { resource: UserJsModel,
-                options: {
-                    properties: {
-                        encryptedPassword: {
-                            isVisible: false,
-                        },
-                        password: {
-                            type: 'string',
-                            isVisible: {
-                                list: false, edit: true, filter: false, show: false,
-                            },
-                        },
-                    },
-                    actions: {
-                        new: {
-                            isAccessible: canModifyUsers,
-                            isVisible: canModifyUsers,
-                            before: async (request) => {
-                                if(request.payload.password) {
-                                    request.payload = {
-                                        ...request.payload,
-                                        encryptedPassword: await bcrypt.hash(request.payload.password, 10),
-                                        password: undefined,
-                                    }
-                                }
-                                return request
-                            },
-                        },
-                        edit: { isAccessible: canModifyUsers, isVisible: canModifyUsers},
-                        delete: { isAccessible: canModifyUsers, isVisible: canModifyUsers},
-                        show: { isAccessible: canModifyUsers, isVisible: canModifyUsers},
-                        bulkDelete: { isAccessible: canModifyUsers, isVisible: canModifyUsers},
-                    },
-                }
-            }
-        ],
-        rootPath: '/admin',
-    }
+
 
     const admin = new AdminJS.default(adminOptions);
 
