@@ -12,7 +12,7 @@ export class Variable {
   @Prop()
   description: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'device'})
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Device'})
   owner: Device;
 
   @Prop()
@@ -26,4 +26,4 @@ export class Variable {
 }
 export const VariableSchema = SchemaFactory.createForClass(Variable);
 
-export const VariableModel = model('variable', VariableSchema)
+export const VariableModel = model('Variable', VariableSchema)

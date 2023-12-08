@@ -13,7 +13,7 @@ export class Price {
   @Prop({ type: String, enum: CostType })
   costType: CostType;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'service' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Service' })
   service: Service;
 
   @Prop({ type: [String] })
@@ -30,4 +30,4 @@ export class Price {
 }
 export const PriceSchema = SchemaFactory.createForClass(Price);
 
-export const PriceModel = model('price', PriceSchema)
+export const PriceModel = model('Price', PriceSchema)

@@ -18,13 +18,13 @@ export class Device {
   @Prop()
   bayNumber: number;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'collection' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Collection' })
   owner: Collection;
 
   @Prop()
   description: string;
 
-  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'variable' })
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Variable' })
   variables: Variable[];
 
   @Prop({ type: String, enum: DeviceStatus, default: DeviceStatus.UNAVAILABLE })
@@ -44,4 +44,4 @@ export class Device {
 }
 export const DeviceSchema = SchemaFactory.createForClass(Device);
 
-export const DeviceModel = model('device', DeviceSchema)
+export const DeviceModel = model('Device', DeviceSchema)

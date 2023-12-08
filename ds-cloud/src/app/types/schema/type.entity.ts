@@ -12,4 +12,4 @@ export class Type {
 
 export const TypeSchema = SchemaFactory.createForClass(Type);
 
-export const TypeModel = model('type', TypeSchema)
+export const TypeModel = model('Type', TypeSchema)

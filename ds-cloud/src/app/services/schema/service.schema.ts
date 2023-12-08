@@ -16,4 +16,4 @@ export class Service {
 }
 export const ServiceSchema = SchemaFactory.createForClass(Service);
 
-export const ServiceModel = model('service', ServiceSchema)
+export const ServiceModel = model('Service', ServiceSchema)

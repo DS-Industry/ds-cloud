@@ -20,22 +20,22 @@ export class Collection {
   @Prop({ required: true })
   city: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'user' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   owner: User;
 
-  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'device' })
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Device' })
   devices: Device[];
 
   @Prop({ type: String, enum: CollectionType })
   type: CollectionType;
 
-  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'price' })
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Price' })
   prices: Price[];
 
-  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'integration' })
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Integration' })
   integrations: Integration[];
 
-  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'tag' })
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Tag' })
   tags: Tag[];
 
   @Prop({ default: 0 })
@@ -61,4 +61,4 @@ export class Collection {
 }
 
 export const CollectionSchema = SchemaFactory.createForClass(Collection);
-export const CollectionModel = model('collection', CollectionSchema)
+export const CollectionModel = model('Collection', CollectionSchema)

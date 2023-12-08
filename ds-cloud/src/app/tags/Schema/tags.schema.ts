@@ -14,4 +14,4 @@ export class Tag {
 
 export const TagSchema = SchemaFactory.createForClass(Tag);
 
-export const TagModel = model('tag', TagSchema)
+export const TagModel = model('Tag', TagSchema)

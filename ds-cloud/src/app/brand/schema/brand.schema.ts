@@ -13,4 +13,4 @@ export class Brand {
 
 export const BrandSchema = SchemaFactory.createForClass(Brand);
 
-export const BrandModel = model('brand', BrandSchema)
+export const BrandModel = model('Brand', BrandSchema)

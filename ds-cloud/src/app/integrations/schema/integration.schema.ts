@@ -16,4 +16,4 @@ export class Integration {
 }
 
 export const IntegrationSchema = SchemaFactory.createForClass(Integration);
-export const IntegrationModel = model('integration', IntegrationSchema);
+export const IntegrationModel = model('Integration', IntegrationSchema);
