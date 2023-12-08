@@ -162,7 +162,6 @@ export class CollectionService {
     return this.formatCollectionArray(collections);
   }
 
-
   async findAllByIntegrationLocationGroup(code: number) {
     const integrations = await this.integrationModel.findOne({ id: code });
     const { _id } = integrations;
