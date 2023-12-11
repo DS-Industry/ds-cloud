@@ -14,7 +14,6 @@ import {UserJsModel} from "@/adminJs/userAdminJs";
 import * as bcrypt from 'bcryptjs';
 import {DatabaseService} from "@/database/database.service";
 const session = require('express-session');
-const MongoStore = require('connect-mongo');
 async function preloadAdminJSModules() {
     const [AdminJS, AdminJSExpress, AdminJSMongoose] = await Promise.all([
         import('adminjs'),
@@ -80,19 +79,6 @@ async function bootstrap() {
     })
     const { AdminJS, AdminJSExpress, AdminJSMongoose } = await preloadAdminJSModules();
 
-    const sessionOptions = {
-        secret: 'my-super-secret',
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            maxAge: 3600000,
-            secure: false,
-            httpOnly: false,
-        },
-        store: MongoStore.create(mongoose.connection),
-    }
-
-    app.use(session(sessionOptions))
     const admin = new AdminJS.default(adminOptions);
 
     const adminRouter = AdminJSExpress.default.buildAuthenticatedRouter(admin, {
@@ -108,6 +94,11 @@ async function bootstrap() {
         },
         cookieName: 'authentication',
         cookiePassword: 'some-secret-password-used-to-secure-cookie',
+    }, null, <any>{
+        cookie: {
+            httpOnly: false,
+            secure: false,
+        }
     });
     app.use(admin.options.rootPath, adminRouter);
 
