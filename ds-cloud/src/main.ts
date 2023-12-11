@@ -49,6 +49,14 @@ async function bootstrap() {
     }),
   );
 
+  app.use(
+      session({
+          secret: 'some-secret-password-used-to-secure-session',
+          resave: false,
+          saveUninitialized: true,
+      }),
+  );
+
   const options = new DocumentBuilder()
     .setTitle(`${process.env.APP_NAME} API`)
     .setBasePath('/api/v1/')
@@ -78,15 +86,6 @@ async function bootstrap() {
         sslCA: mongooseOptions.sslCA,
     })
     const { AdminJS, AdminJSExpress, AdminJSMongoose } = await preloadAdminJSModules();
-
-
-    app.use(
-        session({
-            secret: 'some-secret-password-used-to-secure-session',
-            resave: false,
-            saveUninitialized: false,
-        }),
-    );
 
     const admin = new AdminJS.default(adminOptions);
 
