@@ -13,6 +13,7 @@ const adminOptions = require('./adminJs/admin-options');
 import {UserJsModel} from "@/adminJs/userAdminJs";
 import * as bcrypt from 'bcryptjs';
 import {DatabaseService} from "@/database/database.service";
+import * as session from 'express-session';
 async function preloadAdminJSModules() {
     const [AdminJS, AdminJSExpress, AdminJSMongoose] = await Promise.all([
         import('adminjs'),
@@ -69,6 +70,7 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
+
     const dataService = app.get(DatabaseService);
     const mongooseOptions = dataService.createMongooseOptions();
     await mongoose.connect(mongooseOptions.uri, {
@@ -77,6 +79,14 @@ async function bootstrap() {
     })
     const { AdminJS, AdminJSExpress, AdminJSMongoose } = await preloadAdminJSModules();
 
+
+    app.use(
+        session({
+            secret: 'some-secret-password-used-to-secure-session',
+            resave: false,
+            saveUninitialized: false,
+        }),
+    );
 
     const admin = new AdminJS.default(adminOptions);
 
