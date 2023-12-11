@@ -8,8 +8,24 @@ import * as compression from 'compression';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import helmet from 'helmet';
+import mongoose from 'mongoose'
+const adminOptions = require('./adminJs/admin-options');
+import {UserJsModel} from "@/adminJs/userAdminJs";
+import * as bcrypt from 'bcryptjs';
+import {DatabaseService} from "@/database/database.service";
+async function preloadAdminJSModules() {
+    const [AdminJS, AdminJSExpress, AdminJSMongoose] = await Promise.all([
+        import('adminjs'),
+        import('@adminjs/express'),
+        import('@adminjs/mongoose'),
+    ]);
 
+    AdminJS.default.registerAdapter({
+        Resource: AdminJSMongoose.Resource,
+        Database: AdminJSMongoose.Database,
+    });
+    return { AdminJS, AdminJSExpress, AdminJSMongoose };
+}
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useGlobalPipes(new ValidationPipe());
@@ -53,6 +69,33 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
+    const dataService = app.get(DatabaseService);
+    const mongooseOptions = dataService.createMongooseOptions();
+    await mongoose.connect(mongooseOptions.uri, {
+        ssl: mongooseOptions.ssl,
+        sslCA: mongooseOptions.sslCA,
+    })
+    const { AdminJS, AdminJSExpress, AdminJSMongoose } = await preloadAdminJSModules();
+
+
+    const admin = new AdminJS.default(adminOptions);
+
+    const adminRouter = AdminJSExpress.default.buildAuthenticatedRouter(admin, {
+        authenticate: async (email, password) => {
+            const user = await UserJsModel.findOne({ email })
+            if (user) {
+                const matched = await bcrypt.compare(password, user.encryptedPassword)
+                if (matched) {
+                    return user
+                }
+            }
+            return false
+        },
+        cookiePassword: 'some-secret-password-used-to-secure-cookie',
+    });
+    app.use(admin.options.rootPath, adminRouter);
+
   await app.listen(process.env.APP_PORT || 3000);
+
 }
 bootstrap();

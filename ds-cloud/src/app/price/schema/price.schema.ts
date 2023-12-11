@@ -1,6 +1,6 @@
-import mongoose, { Document } from 'mongoose';
+import mongoose, {Document, model} from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { CostType } from '../../../common/enums/cost-type.enum';
+import { CostType } from '@/common/enums';
 import { Service } from '../../services/schema/service.schema';
 
 export type PriceDocument = Price & Document;
@@ -29,3 +29,5 @@ export class Price {
   lastUpdateDate: Date;
 }
 export const PriceSchema = SchemaFactory.createForClass(Price);
+
+export const PriceModel = model('Price', PriceSchema)

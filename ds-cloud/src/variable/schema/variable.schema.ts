@@ -1,4 +1,4 @@
-import mongoose, { Document } from 'mongoose';
+import mongoose, {Document, model} from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Device } from '../../device/schema/device.schema';
 import { DataType } from '../enum/data-type.enum';
@@ -12,7 +12,7 @@ export class Variable {
   @Prop()
   description: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Device' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Device'})
   owner: Device;
 
   @Prop()
@@ -25,3 +25,5 @@ export class Variable {
   tag: string;
 }
 export const VariableSchema = SchemaFactory.createForClass(Variable);
+
+export const VariableModel = model('Variable', VariableSchema)

@@ -20,6 +20,10 @@ import { PriceModule } from './app/price/price.module';
 import { TagsModule } from './app/tags/tags.module';
 import { BrandModule } from './app/brand/brand.module';
 import { TypesModule } from './app/types/types.module';
+import {CollectionSchema} from "@/app/collection/Schema/collection.schema";
+import mongoose, {model} from "mongoose";
+import {resources} from "@opentelemetry/sdk-node";
+
 
 const logtail = new Logtail('H8oAoz3TQm3CFZLp6HbUD64j');
 
@@ -58,4 +62,6 @@ const logtail = new Logtail('H8oAoz3TQm3CFZLp6HbUD64j');
   controllers: [],
   providers: [],
 })
+
+
 export class AppModule {}

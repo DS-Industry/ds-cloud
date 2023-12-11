@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import {Document, model} from 'mongoose';
 
 export type IntegrationDocument = Integration & Document;
 
@@ -16,3 +16,4 @@ export class Integration {
 }
 
 export const IntegrationSchema = SchemaFactory.createForClass(Integration);
+export const IntegrationModel = model('Integration', IntegrationSchema);

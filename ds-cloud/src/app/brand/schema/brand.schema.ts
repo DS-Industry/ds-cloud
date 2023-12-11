@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, {Document, model} from 'mongoose';
 
 export type BrandDocument = Brand & Document;
 
@@ -12,3 +12,5 @@ export class Brand {
 }
 
 export const BrandSchema = SchemaFactory.createForClass(Brand);
+
+export const BrandModel = model('Brand', BrandSchema)

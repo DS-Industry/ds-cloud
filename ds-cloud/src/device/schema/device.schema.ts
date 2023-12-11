@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, {Document, model} from 'mongoose';
 import { Variable } from '../../variable/schema/variable.schema';
 import { Collection } from '../../app/collection/Schema/collection.schema';
 import { DeviceStatus } from '../../common/enums/device-status.enum';
@@ -43,3 +43,5 @@ export class Device {
   type: DeviceType;
 }
 export const DeviceSchema = SchemaFactory.createForClass(Device);
+
+export const DeviceModel = model('Device', DeviceSchema)
