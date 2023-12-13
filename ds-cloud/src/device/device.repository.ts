@@ -17,7 +17,7 @@ export class DeviceRepository extends MongoGenericRepository<DeviceDocument> {
     return this.entiryModel.findOne(query).populate(populatedItems).exec();
   }
 
-  async batchUpdate(bulkOps: any[]) {
+  async batchUpdate(bulkOps: any[]):Promise<any> {
     return await this.entiryModel.bulkWrite(bulkOps);
   }
 }

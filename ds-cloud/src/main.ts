@@ -13,8 +13,7 @@ const adminOptions = require('./adminJs/admin-options');
 import {UserJsModel} from "@/adminJs/userAdminJs";
 import * as bcrypt from 'bcryptjs';
 import {DatabaseService} from "@/database/database.service";
-/*const session = require('express-session');
-const MongoStore = require('connect-mongo');*/
+const MongoStore = require('connect-mongo');
 async function preloadAdminJSModules() {
     const [AdminJS, AdminJSExpress, AdminJSMongoose] = await Promise.all([
         import('adminjs'),
@@ -66,42 +65,19 @@ async function bootstrap() {
     )
     .build();
 
-  const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api/v1/docs', app, document);
+    const document = SwaggerModule.createDocument(app, options);
+    SwaggerModule.setup('api/v1/docs', app, document);
 
-
-
-  app.use(cookieParser());
-  /*app.use(session({
-      secret: 'some-secret-password-used-to-secure-cookie',
-      cookie: {
-          httpOnly: false,
-          secure: false,
-      },
-      store: MongoStore.create({
-          mongoUrl: mongooseOptions.uri,
-          MongoOptions:{
-              server: {
-                  ssl: mongooseOptions.ssl,
-                  sslCA: mongooseOptions.sslCA,
-              }
-          }
-      }),
-      resave: false,
-      saveUninitialized: false,
-  }))*/
-
-
+    app.use(cookieParser());
 
     const { AdminJS, AdminJSExpress, AdminJSMongoose } = await preloadAdminJSModules();
     const dataService = app.get(DatabaseService);
     const mongooseOptions = dataService.createMongooseOptions();
-    const admin = new AdminJS.default(adminOptions);
-
     await mongoose.connect(mongooseOptions.uri, {
         ssl: mongooseOptions.ssl,
         sslCA: mongooseOptions.sslCA,
     })
+    const admin = new AdminJS.default(adminOptions);
     const adminRouter = AdminJSExpress.default.buildAuthenticatedRouter(admin, {
         authenticate: async (email, password) => {
             const user = await UserJsModel.findOne({ email })
@@ -114,24 +90,18 @@ async function bootstrap() {
             return false
         },
         cookiePassword: 'some-secret-password-used-to-secure-cookie',
-    }/*, null, <null>{
+    }, null, <null>{
         secret: 'some-secret-password-used-to-secure-cookie',
         cookie: {
             httpOnly: false,
             secure: false,
         },
         store: MongoStore.create({
-            mongoUrl: mongooseOptions.uri,
-            MongoOptions:{
-                server: {
-                    ssl: mongooseOptions.ssl,
-                    sslCA: mongooseOptions.sslCA,
-                }
-            }
+            client: mongoose.connection.getClient(),
         }),
         resave: false,
         saveUninitialized: false,
-    }*/);
+    });
     app.use(admin.options.rootPath, adminRouter);
 
   await app.listen(process.env.APP_PORT || 3000);

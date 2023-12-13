@@ -59,7 +59,7 @@ export class PriceService {
     return await this.priceRepository.batchInsert(bulkIns);
   }
 
-  async update(updatePriceReqs: UpdatePriceRequestDto) {
+  async update(updatePriceReqs: UpdatePriceRequestDto):Promise<any> {
     const service = await this.servicesService.findOneByFilter({
       _id: updatePriceReqs.serviceObjectId,
     });
