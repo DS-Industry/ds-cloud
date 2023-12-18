@@ -13,7 +13,7 @@ export class CollectionRepository extends MongoGenericRepository<CollectionDocum
     super(collectionModel);
   }
 
-  async batchUpdate(bulkOps: any[]) {
+  async batchUpdate(bulkOps: any[]):Promise<any> {
     return await this.entiryModel.bulkWrite(bulkOps);
   }
 
