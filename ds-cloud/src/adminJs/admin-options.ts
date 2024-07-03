@@ -97,7 +97,7 @@ const adminOptions = {
                             { value: 'GVLSource', label: 'GVLSource' },
                         ],
                     },
-                    owner: {
+                    _id: {
                         isTitle: true,
                     },
                 }

@@ -303,7 +303,7 @@ export class CollectionService {
    * Bulk update collections from csv
    * @param fileName
    */
-  async batchUpdate(fileName: string) {
+  async batchUpdate(fileName: string):Promise<any> {
     const path = getCSVFile(fileName);
     const bulkOps = [];
 
