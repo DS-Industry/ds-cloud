@@ -18,7 +18,8 @@ const adminOptions = {
             options: {
                 properties: {
                     costType:{
-                        isRequired: true,
+                        isTitle: false,
+                        isRequired: false,
                     },
                     service:{
                         isRequired: true,
@@ -26,6 +27,10 @@ const adminOptions = {
                     collectionId: {
                         description: 'Id - как в CW',
                     },
+                    _id: {
+                        isTitle: true,
+                    },
+
                 }
             }
         },
