@@ -17,9 +17,12 @@ const adminOptions = {
         {resource: PriceModel,
             options: {
                 properties: {
-                    costType:{
+                    cost:{
                         isTitle: false,
                         isRequired: false,
+                    },
+                    costType:{
+                        isRequired: true,
                     },
                     service:{
                         isRequired: true,
