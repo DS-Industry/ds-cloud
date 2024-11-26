@@ -159,7 +159,7 @@ export class CollectionService {
     const collections =
       await this.collectionRepository.findCollectionsWithOptions(options);
 
-    return this.formatCollectionArray(collections);
+    return this.formatCollectionArray(collections, true);
   }
 
   async findAllByIntegrationLocationGroup(code: number) {
@@ -455,7 +455,7 @@ export class CollectionService {
     return { code: HttpStatus.OK, message: 'Success' };
   }
 
-  public formatCollectionArray(collections) {
+  public formatCollectionArray(collections, isVacuums = false) {
     const groupedCarwashes = new Map<string, any>();
 
     collections.forEach((c, i) => {
@@ -472,9 +472,17 @@ export class CollectionService {
       }
 
       const boxes: any[] = [];
+      const vacuums: any[] = [];
+
       c.devices.forEach((d, i) => {
         if (d.type === DeviceType.BAY || d.type === DeviceType.PORTAL) {
           boxes.push({
+            id: d.identifier,
+            number: d.bayNumber,
+            status: d.status,
+          });
+        } else if (d.type === DeviceType.VACUUME) {
+          vacuums.push({
             id: d.identifier,
             number: d.bayNumber,
             status: d.status,
@@ -513,7 +521,7 @@ export class CollectionService {
         price: prices,
         tags: tags,
       };
-
+      if (isVacuums) carwash['vacuums'] = vacuums;
       const group = groupedCarwashes.get(locationKey);
       group.carwashes.push(carwash);
     });
