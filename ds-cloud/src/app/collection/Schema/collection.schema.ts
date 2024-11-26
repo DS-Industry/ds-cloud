@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
-import { User } from '../../../user/schema/user.schema';
-import { Device } from '../../../device/schema/device.schema';
+import mongoose, {Document, model} from 'mongoose';
+import { User } from '@/user/schema/user.schema';
+import { Device } from '@/device/schema/device.schema';
 import { Integration } from '../../integrations/schema/integration.schema';
 import { Price } from '../../price/schema/price.schema';
-import { CollectionType } from '../../../common/enums/collection-type.enum';
+import { CollectionType } from '@/common/enums';
 import { Tag } from '@/app/tags/Schema/tags.schema';
 
 export type CollectionDocument = Collection & Document;
@@ -61,3 +61,4 @@ export class Collection {
 }
 
 export const CollectionSchema = SchemaFactory.createForClass(Collection);
+export const CollectionModel = model('Collection', CollectionSchema)

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, {Document, model} from 'mongoose';
 export type TypeDocument = Type & Document;
 
 @Schema({ collection: 'type' })
@@ -11,3 +11,5 @@ export class Type {
 }
 
 export const TypeSchema = SchemaFactory.createForClass(Type);
+
+export const TypeModel = model('Type', TypeSchema)

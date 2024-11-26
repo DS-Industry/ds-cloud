@@ -17,7 +17,7 @@ export class PriceRepository extends MongoGenericRepository<PriceDocument> {
     return Object.assign(bulkWriteResult, result.result);
   }
 
-  async updateOne(collectionId, serviceId, updateFields: any) {
+  async updateOne(collectionId, serviceId, updateFields: any):Promise<any> {
     return this.entiryModel.updateOne(
       { collectionId, serviceId },
       { $set: updateFields },

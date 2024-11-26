@@ -1,4 +1,4 @@
-import { Document } from 'mongoose';
+import {Document, model} from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
 
@@ -27,3 +27,5 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+export const UserModel = model('User', UserSchema)

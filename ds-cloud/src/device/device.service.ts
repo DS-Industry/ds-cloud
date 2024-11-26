@@ -106,7 +106,7 @@ export class DeviceService {
    * Bulk update devices
    * @param fileName
    */
-  async batchUpdate(fileName: string) {
+  async batchUpdate(fileName: string):Promise<any> {
     //Getting file path from helper method getCsvFile
     const path = getCSVFile(fileName);
     //Creating stream. Adding decoding to support Russian language

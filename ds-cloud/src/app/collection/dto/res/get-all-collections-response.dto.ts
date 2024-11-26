@@ -1,5 +1,4 @@
 import { DeviceStatus } from '../../../../common/enums/device-status.enum';
-import { noSniff } from 'helmet';
 import { CostType } from '../../../../common/enums/cost-type.enum';
 
 class Location {
