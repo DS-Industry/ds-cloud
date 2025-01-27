@@ -41,6 +41,9 @@ export class Device {
 
   @Prop({ type: String, enum: DeviceType })
   type: DeviceType;
+
+  @Prop({ type: Number, default: 1.0 }) // Устанавливаем тип и значение по умолчанию
+  coefficient: number;
 }
 export const DeviceSchema = SchemaFactory.createForClass(Device);
 
