@@ -103,7 +103,7 @@ export class ExternalService {
     const bulkOps = [];
     const device = await this.deviceModel
       .findOne({ identifier: id })
-      .select({ _id: 1, lastUpdateDate: 1 });
+      .select({ _id: 1, lastUpdateDate: 1, coefficient: 1 });
 
     const currentVar: any[] = await this.variableModel
       .find({ owner: device._id })
