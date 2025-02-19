@@ -58,6 +58,9 @@ export class Collection {
 
   @Prop()
   lon: number;
+
+  @Prop({ type: Boolean, default: false })
+  IsLoyaltyMember: boolean;
 }
 
 export const CollectionSchema = SchemaFactory.createForClass(Collection);
