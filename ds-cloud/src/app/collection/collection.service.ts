@@ -517,6 +517,7 @@ export class CollectionService {
         stepCost: c.stepCost,
         limitMinCost: c.limitMinCost,
         limitMaxCost: c.limitMaxCost,
+        IsLoyaltyMember: c.IsLoyaltyMember,
         boxes: boxes,
         price: prices,
         tags: tags,
