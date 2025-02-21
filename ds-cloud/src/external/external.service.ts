@@ -128,10 +128,10 @@ export class ExternalService {
       }
     });
 
-    if (Number(data.GVLSource) == 151422) {
-      const coff = device.coefficient;
-      data.GVLCardSum = Math.round(coff * Number(data.GVLCardSum)).toString();
-    }
+    //if (Number(data.GVLSource) == 151422) {
+    const coff = device.coefficient;
+    data.GVLCardSum = Math.round(coff * Number(data.GVLCardSum)).toString();
+    //}
 
     for (const item of Object.entries(data)) {
       bulkOps.push({
