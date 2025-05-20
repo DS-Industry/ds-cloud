@@ -4,6 +4,8 @@ import { Collection, CollectionDocument } from './Schema/collection.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { LeanDocument, Model, Types } from 'mongoose';
 import { CollectionDto } from './dto/core/collection.dto';
+import {DeviceType} from "@/common/enums/device-type.enum";
+import {CollectionType} from "@/common/enums";
 
 @Injectable()
 export class CollectionRepository extends MongoGenericRepository<CollectionDocument> {
@@ -72,17 +74,26 @@ export class CollectionRepository extends MongoGenericRepository<CollectionDocum
       .exec();
   }
 
-  async getCollectionDeviceByBayNumber(id: string, bayNumber: number) {
+  async getCollectionDeviceByBayNumber(id: string, bayNumber: number, type?: DeviceType,) {
     const collection: CollectionDocument = await this.entiryModel
       .findOne({ identifier: id })
-      .select({ devices: 1 })
+      .select({ devices: 1, type: 1 })
       .populate({
         path: 'devices',
-        select: 'identifier bayNumber status lastUpdateDate',
+        select: 'identifier bayNumber status lastUpdateDate type',
       })
       .lean();
 
     if (!collection) return null;
-    return collection.devices.find((d) => d.bayNumber == bayNumber);
+
+    const deviceType = type ?? (
+        collection.type === CollectionType.SELFSERVICE
+            ? DeviceType.BAY
+            : DeviceType.PORTAL
+    );
+
+    return collection.devices?.find(
+        (d) => d.bayNumber === bayNumber && d.type === deviceType,
+    );
   }
 }

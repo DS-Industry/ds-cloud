@@ -196,11 +196,13 @@ export class ExternalService {
   public async getDeviceByCarwashIdAndBayNumber(
     carwashId: string,
     bayNumber: number,
+    type?: DeviceType,
   ) {
     const collection =
       await this.collectionService.getCollectionDeviceByBayNumber(
         carwashId,
         bayNumber,
+        type,
       );
 
     return collection;

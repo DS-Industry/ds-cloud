@@ -237,12 +237,14 @@ export class CollectionService {
    * Get Collection Bay by bay number
    * @param id
    * @param bayNumber
+   * @param type
    */
-  async getCollectionDeviceByBayNumber(id: string, bayNumber: number) {
+  async getCollectionDeviceByBayNumber(id: string, bayNumber: number, type?: DeviceType,) {
     const device =
       await this.collectionRepository.getCollectionDeviceByBayNumber(
         id,
         bayNumber,
+        type,
       );
 
     const { lastUpdateDate, ...rest } = device;

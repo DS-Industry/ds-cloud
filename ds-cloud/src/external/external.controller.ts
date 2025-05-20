@@ -115,6 +115,7 @@ export class ExternalController {
     return this.externalService.getDeviceByCarwashIdAndBayNumber(
       query.carwashId,
       +query.bayNumber,
+      query.type,
     );
   }
 
