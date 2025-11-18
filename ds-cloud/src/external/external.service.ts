@@ -208,6 +208,19 @@ export class ExternalService {
     return collection;
   }
 
+  public async getDeviceByCarwashIdAndDeviceId(
+    carwashId: string,
+    carWashDeviceId: string,
+  ) {
+    const device =
+      await this.collectionService.getCollectionDeviceByIdentifier(
+        carwashId,
+        carWashDeviceId,
+      );
+
+    return device;
+  }
+
   public async writePriceData(collectionId: string, data: any) {
     const collection: any = await this.collectionModel
       .findOne({ identifier: collectionId })

@@ -112,10 +112,9 @@ export class ExternalController {
 
   @Get('collection/device')
   getCollectionBay(@Query() query: GetCollectionBayRequest) {
-    return this.externalService.getDeviceByCarwashIdAndBayNumber(
+    return this.externalService.getDeviceByCarwashIdAndDeviceId(
       query.carwashId,
-      +query.bayNumber,
-      query.type,
+      query.carWashDeviceId,
     );
   }
 

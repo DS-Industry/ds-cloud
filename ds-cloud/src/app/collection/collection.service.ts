@@ -257,6 +257,27 @@ export class CollectionService {
     return rest;
   }
 
+  async getCollectionDeviceByIdentifier(carwashId: string, deviceIdentifier: string) {
+    const device =
+      await this.collectionRepository.getCollectionDeviceByIdentifier(
+        carwashId,
+        deviceIdentifier,
+      );
+
+    if (!device) {
+      return null;
+    }
+
+    const { lastUpdateDate, ...rest } = device;
+
+    const timeDiff = moment().diff(lastUpdateDate, 'minutes');
+    if (timeDiff >= 3) {
+      throw new DeviceNetworkException(`carwash device ${deviceIdentifier}`);
+    }
+
+    return rest;
+  }
+
   async findOneByIdentifier(identifier: string) {
     return await this.collectionRepository.findOneByFilter({
       identifier: identifier,
