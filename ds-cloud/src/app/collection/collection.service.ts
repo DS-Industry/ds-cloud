@@ -520,6 +520,7 @@ export class CollectionService {
         limitMinCost: c.limitMinCost,
         limitMaxCost: c.limitMaxCost,
         IsLoyaltyMember: c.IsLoyaltyMember,
+        IsFixPrice: c.IsFixPrice,
         boxes: boxes,
         price: prices,
         tags: tags,
