@@ -211,7 +211,14 @@ export class ExternalService {
   public async writePriceData(collectionId: string, data: any) {
     const collection: any = await this.collectionModel
       .findOne({ identifier: collectionId })
-      .select({ _id: 1, type: 1, identifier: 1 });
+      .select({ _id: 1, type: 1, identifier: 1, IsFixPrice: 1 });
+
+    if (collection.IsFixPrice === true) {
+      return {
+        code: 400,
+        message: 'Price fix'
+      };
+    }
 
     //Parse data
     const prices = [];

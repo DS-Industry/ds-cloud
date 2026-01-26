@@ -61,6 +61,9 @@ export class Collection {
 
   @Prop({ type: Boolean, default: false })
   IsLoyaltyMember: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  IsFixPrice: boolean;
 }
 
 export const CollectionSchema = SchemaFactory.createForClass(Collection);
