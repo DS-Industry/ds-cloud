@@ -101,9 +101,11 @@ export class ExternalService {
    */
   public async writeMobileData(id: string, data: ExternalMobileWriteRequest) {
     const bulkOps = [];
+
     const device = await this.deviceModel
       .findOne({ identifier: id })
       .select({ _id: 1, lastUpdateDate: 1, coefficient: 1 });
+
 
     const currentVar: any[] = await this.variableModel
       .find({ owner: device._id })
@@ -131,6 +133,7 @@ export class ExternalService {
     //if (Number(data.GVLSource) == 151422) {
     const coff = device.coefficient;
     data.GVLCardSum = Math.round(coff * Number(data.GVLCardSum)).toString();
+
     //}
 
     for (const item of Object.entries(data)) {
@@ -206,6 +209,19 @@ export class ExternalService {
       );
 
     return collection;
+  }
+
+  public async getDeviceByCarwashIdAndDeviceId(
+    carwashId: string,
+    carWashDeviceId: string,
+  ) {
+    const device =
+      await this.collectionService.getCollectionDeviceByIdentifier(
+        carwashId,
+        carWashDeviceId,
+      );
+
+    return device;
   }
 
   public async writePriceData(collectionId: string, data: any) {

@@ -27,6 +27,7 @@ import {
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { GetCollectionListRequest } from './dto/get-collection-list-request.dto';
 import { GetCollectionBayRequest } from './dto/get-collection-bay-request.dto';
+import { GetCollectionDeviceRequest } from './dto/get-collection-device-request.dto';
 import { SearchFilterDto } from '@/external/dto/search-filter.dto';
 
 @ApiTags('External mobile')
@@ -116,6 +117,14 @@ export class ExternalController {
       query.carwashId,
       +query.bayNumber,
       query.type,
+    );
+  }
+
+  @Get('collection/device/by-id')
+  getCollectionDevice(@Query() query: GetCollectionDeviceRequest) {
+    return this.externalService.getDeviceByCarwashIdAndDeviceId(
+      query.carwashId,
+      query.carWashDeviceId,
     );
   }
 
