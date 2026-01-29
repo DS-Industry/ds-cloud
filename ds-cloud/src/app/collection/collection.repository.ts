@@ -96,4 +96,21 @@ export class CollectionRepository extends MongoGenericRepository<CollectionDocum
         (d) => d.bayNumber === bayNumber && d.type === deviceType,
     );
   }
+
+  async getCollectionDeviceByIdentifier(carwashId: string, deviceIdentifier: string) {
+    const collection: CollectionDocument = await this.entiryModel
+      .findOne({ identifier: carwashId })
+      .select({ devices: 1 })
+      .populate({
+        path: 'devices',
+        select: 'identifier bayNumber status lastUpdateDate type',
+      })
+      .lean();
+
+    if (!collection) return null;
+
+    return collection.devices?.find(
+        (d) => d.identifier === deviceIdentifier,
+    );
+  }
 }
