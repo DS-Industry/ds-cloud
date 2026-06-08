@@ -50,7 +50,9 @@ export class ExternalController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request' })
   @UseGuards(ApiKeyGuard)
   writeDeviceData(@Param('id') id: string, @Req() req) {
-    //Get data from header and parse in into JSON
+    if (id === '1952') {
+      console.log(`[IP]Device write request for id 1952 from IP: ${req.ip}`);
+    }
     const data = req.headers.data.split(',');
     return this.externalService.writeControllerData(id, data);
   }
