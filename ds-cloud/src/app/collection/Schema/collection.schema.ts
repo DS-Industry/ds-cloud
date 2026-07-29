@@ -64,6 +64,12 @@ export class Collection {
 
   @Prop({ type: Boolean, default: false })
   IsFixPrice: boolean;
+
+  @Prop({ type: String, default: null })
+  inn: string | null;
+
+  @Prop({ type: Number, default: null })
+  vatValue: number | null;
 }
 
 export const CollectionSchema = SchemaFactory.createForClass(Collection);

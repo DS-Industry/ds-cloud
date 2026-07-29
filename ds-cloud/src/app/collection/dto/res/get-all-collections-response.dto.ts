@@ -20,6 +20,11 @@ class Price {
   costType: CostType;
 }
 
+class IndividualFiscalData {
+  inn: string | null;
+  vatValue: number | null;
+}
+
 export class GetAllCollectionsResponse {
   id: string;
   name: string;
@@ -28,4 +33,5 @@ export class GetAllCollectionsResponse {
   location: Location;
   boxes: Boxes[];
   price: Price[];
+  individualFiscalData: IndividualFiscalData;
 }

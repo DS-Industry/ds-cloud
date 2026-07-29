@@ -116,6 +116,10 @@ export class CollectionService {
         },
         boxes: boxes,
         price: prices,
+        individualFiscalData: {
+          inn: c.inn ?? null,
+          vatValue: c.vatValue ?? null,
+        },
       };
     });
     return res;
@@ -223,6 +227,10 @@ export class CollectionService {
         boxes: boxes,
         price: prices,
         tags: tags,
+        individualFiscalData: {
+          inn: c.inn ?? null,
+          vatValue: c.vatValue ?? null,
+        },
       };
 
       const group = groupedCarwashes.get(locationKey);
@@ -545,6 +553,10 @@ export class CollectionService {
         boxes: boxes,
         price: prices,
         tags: tags,
+        individualFiscalData: {
+          inn: c.inn ?? null,
+          vatValue: c.vatValue ?? null,
+        },
       };
       if (isVacuums) carwash['vacuums'] = vacuums;
       const group = groupedCarwashes.get(locationKey);
