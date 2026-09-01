@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsBoolean,
   IsEnum,
   IsNumber,
   IsOptional,
@@ -27,4 +28,8 @@ export class UpdateDeviceDto {
   @IsOptional()
   @IsArray()
   readonly variables?: any[];
+
+  @IsOptional()
+  @IsBoolean()
+  readonly isVacuumFree?: boolean;
 }

@@ -80,7 +80,7 @@ export class CollectionRepository extends MongoGenericRepository<CollectionDocum
       .select({ devices: 1, type: 1 })
       .populate({
         path: 'devices',
-        select: 'identifier bayNumber status lastUpdateDate type',
+        select: 'identifier bayNumber status lastUpdateDate type isVacuumFree',
       })
       .lean();
 
@@ -103,7 +103,7 @@ export class CollectionRepository extends MongoGenericRepository<CollectionDocum
       .select({ devices: 1 })
       .populate({
         path: 'devices',
-        select: 'identifier bayNumber status lastUpdateDate type',
+        select: 'identifier bayNumber status lastUpdateDate type isVacuumFree',
       })
       .lean();
 

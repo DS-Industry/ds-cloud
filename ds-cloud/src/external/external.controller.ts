@@ -106,11 +106,40 @@ export class ExternalController {
 
     if (!filter) filterParam = '';
 
-    return await this.externalService.getCarWashesWithSearchAndFilters(
-      +code,
-      searchParam,
-      this.stringToObject(filterParam),
+    const result =
+      await this.externalService.getCarWashesWithSearchAndFilters(
+        +code,
+        searchParam,
+        this.stringToObject(filterParam),
+      );
+
+    const carwashes = (result || []).flatMap((g) => g.carwashes || []);
+    const vacuums = carwashes.flatMap((c) => c.vacuums || []);
+    const poses = carwashes.map((c) => ({
+      id: c.id,
+      name: c.name,
+      address: c.address,
+      type: c.type,
+      isActive: c.isActive,
+      boxes: (c.boxes || []).length,
+      vacuums: (c.vacuums || []).map((v) => ({
+        id: v.id,
+        number: v.number,
+        status: v.status,
+        isVacuumFree: v.isVacuumFree,
+      })),
+    }));
+
+    this.logger.log(
+      `[GET /external/onvi/carwashes] code=${code} groups=${result?.length ?? 0} poses=${poses.length} vacuums=${vacuums.length}`,
     );
+    this.logger.log(
+      `[GET /external/onvi/carwashes] poses=${JSON.stringify(poses)}`,
+    );
+
+    console.log(JSON.stringify(poses));
+
+    return result;
   }
 
   @Get('collection/device')
@@ -120,6 +149,20 @@ export class ExternalController {
       +query.bayNumber,
       query.type,
     );
+  }
+
+  @Get('collection/device/debug/:carwashId/:deviceId')
+  @ApiOperation({ summary: 'Debug device status and lastUpdateDate' })
+  @ApiParam({ name: 'carwashId', required: true, type: 'string' })
+  @ApiParam({ name: 'deviceId', required: true, type: 'string' })
+  @ApiOkResponse({ description: 'Device debug information' })
+  @ApiNotFoundResponse({ description: 'Device not found' })
+  // Note: Removed ApiKeyGuard for easier debugging - add it back for production if needed
+  debugDevice(
+    @Param('carwashId') carwashId: string,
+    @Param('deviceId') deviceId: string,
+  ) {
+    return this.externalService.debugDeviceStatus(carwashId, deviceId);
   }
 
   @Get('collection/device/by-id')

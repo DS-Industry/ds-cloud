@@ -44,6 +44,9 @@ export class Device {
 
   @Prop({ type: Number, default: 1.0 }) // Устанавливаем тип и значение по умолчанию
   coefficient: number;
+
+  @Prop({ type: Boolean, default: true })
+  isVacuumFree: boolean;
 }
 export const DeviceSchema = SchemaFactory.createForClass(Device);
 
