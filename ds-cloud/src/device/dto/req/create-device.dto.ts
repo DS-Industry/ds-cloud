@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { DeviceStatus } from '../../../common/enums/device-status.enum';
 
 export class CreateDeviceDto {
@@ -20,6 +20,10 @@ export class CreateDeviceDto {
 
   @IsString({ message: 'Description must be of type string ' })
   readonly type: string;
+
+  @IsOptional()
+  @IsBoolean()
+  readonly isVacuumFree?: boolean;
 
   /*
   @IsEnum(DeviceStatus)

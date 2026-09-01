@@ -29,6 +29,7 @@ import { DeviceStatus } from '@/common/enums';
 import * as moment from 'moment/moment';
 import { DeviceNetworkException } from '@/common/helpers/exceptions';
 import { TagsService } from '@/app/tags/tags.service';
+import { PrismaService } from '@/database/prisma.service';
 //TODO
 //1. Add function to insert price list
 
@@ -44,6 +45,7 @@ export class CollectionService {
     private readonly userService: UserService,
     private readonly csvParser: CsvParser,
     private readonly tagService: TagsService,
+    private readonly prisma: PrismaService,
   ) {}
 
   /**
@@ -163,7 +165,7 @@ export class CollectionService {
     const collections =
       await this.collectionRepository.findCollectionsWithOptions(options);
 
-    return this.formatCollectionArray(collections, true);
+    return await this.formatCollectionArray(collections, true);
   }
 
   async findAllByIntegrationLocationGroup(code: number) {
@@ -284,6 +286,17 @@ export class CollectionService {
     }
 
     return rest;
+  }
+
+  /**
+   * Get device with lastUpdateDate for debugging purposes
+   * Does not throw error if device is stale
+   */
+  async getCollectionDeviceByIdentifierForDebug(carwashId: string, deviceIdentifier: string) {
+    return await this.collectionRepository.getCollectionDeviceByIdentifier(
+      carwashId,
+      deviceIdentifier,
+    );
   }
 
   async findOneByIdentifier(identifier: string) {
@@ -486,7 +499,11 @@ export class CollectionService {
     return { code: HttpStatus.OK, message: 'Success' };
   }
 
-  public formatCollectionArray(collections, isVacuums = false) {
+  public async formatCollectionArray(collections, isVacuums = false) {
+    const vacuumFreeByDeviceId = isVacuums
+      ? await this.getOnviVacuumFreeMap(collections)
+      : new Map<string, boolean>();
+
     const groupedCarwashes = new Map<string, any>();
 
     collections.forEach((c, i) => {
@@ -505,7 +522,7 @@ export class CollectionService {
       const boxes: any[] = [];
       const vacuums: any[] = [];
 
-      c.devices.forEach((d, i) => {
+      (c.devices || []).forEach((d, i) => {
         if (d.type === DeviceType.BAY || d.type === DeviceType.PORTAL) {
           boxes.push({
             id: d.identifier,
@@ -517,6 +534,12 @@ export class CollectionService {
             id: d.identifier,
             number: d.bayNumber,
             status: d.status,
+            isVacuumFree:
+              vacuumFreeByDeviceId.get(`${c.identifier}:${d.identifier}`) ??
+              vacuumFreeByDeviceId.get(String(d.identifier)) ??
+              vacuumFreeByDeviceId.get(`${c.identifier}:${d.bayNumber}`) ??
+              d.isVacuumFree ??
+              true,
           });
         }
       });
@@ -564,5 +587,69 @@ export class CollectionService {
     });
 
     return Array.from(groupedCarwashes.values());
+  }
+
+  private async getOnviVacuumFreeMap(
+    collections,
+  ): Promise<Map<string, boolean>> {
+    const vacuumIds = collections.flatMap((c) =>
+      (c.devices || [])
+        .filter((d) => d.type === DeviceType.VACUUME)
+        .map((d) => Number(d.identifier))
+        .filter((id) => Number.isFinite(id)),
+    );
+    const posIds = collections
+      .map((c) => Number(c.identifier))
+      .filter((id) => Number.isFinite(id));
+
+    if (vacuumIds.length === 0 && posIds.length === 0) {
+      return new Map();
+    }
+
+    try {
+      const onviDevices = await this.prisma.carWashDevice.findMany({
+        where: {
+          carWashDeviceType: { code: 'HOOVER' },
+          OR: [
+            ...(vacuumIds.length > 0 ? [{ id: { in: vacuumIds } }] : []),
+            ...(posIds.length > 0
+              ? [{ carWashPos: { posId: { in: posIds } } }]
+              : []),
+          ],
+        },
+        select: {
+          id: true,
+          name: true,
+          isVacuumFree: true,
+          carWashPos: { select: { posId: true } },
+        },
+      });
+
+      const vacuumFreeByDeviceId = new Map<string, boolean>();
+
+      for (const device of onviDevices) {
+        vacuumFreeByDeviceId.set(String(device.id), device.isVacuumFree);
+        vacuumFreeByDeviceId.set(
+          `${device.carWashPos.posId}:${device.id}`,
+          device.isVacuumFree,
+        );
+        const vacuumNumber = this.extractVacuumNumber(device.name);
+        if (vacuumNumber != null) {
+          vacuumFreeByDeviceId.set(
+            `${device.carWashPos.posId}:${vacuumNumber}`,
+            device.isVacuumFree,
+          );
+        }
+      }
+
+      return vacuumFreeByDeviceId;
+    } catch (error) {
+      return new Map();
+    }
+  }
+
+  private extractVacuumNumber(name: string): number | null {
+    const match = name.match(/(\d+)/);
+    return match ? Number(match[1]) : null;
   }
 }

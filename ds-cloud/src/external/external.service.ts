@@ -224,6 +224,52 @@ export class ExternalService {
     return device;
   }
 
+  /**
+   * Debug endpoint to check device status and lastUpdateDate
+   * Helps diagnose why device might be throwing network errors
+   */
+  public async debugDeviceStatus(
+    carwashId: string,
+    deviceId: string,
+  ) {
+    const device =
+      await this.collectionService.getCollectionDeviceByIdentifierForDebug(
+        carwashId,
+        deviceId,
+      );
+
+    if (!device) {
+      return {
+        error: 'Device not found',
+        carwashId,
+        deviceId,
+      };
+    }
+
+    const now = moment();
+    const timeDiffMinutes = now.diff(device.lastUpdateDate, 'minutes');
+    const timeDiffSeconds = now.diff(device.lastUpdateDate, 'seconds');
+
+    return {
+      device: {
+        identifier: device.identifier,
+        status: device.status,
+        type: device.type,
+        bayNumber: device.bayNumber,
+        lastUpdateDate: device.lastUpdateDate,
+        timeSinceLastUpdate: {
+          minutes: timeDiffMinutes,
+          seconds: timeDiffSeconds,
+          humanReadable: moment(device.lastUpdateDate).fromNow(),
+        },
+        isStale: timeDiffMinutes >= 3,
+        willThrowError: timeDiffMinutes >= 3,
+      },
+      carwashId,
+      deviceId,
+    };
+  }
+
   public async writePriceData(collectionId: string, data: any) {
     const collection: any = await this.collectionModel
       .findOne({ identifier: collectionId })

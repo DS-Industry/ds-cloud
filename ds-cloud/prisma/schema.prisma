@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model CarWashDevice {
+  id                    Int      @id @default(autoincrement())
+  name                  String
+  carWashDeviceMetaData String
+  status                String
+  ipAddress             String
+  carWashDeviceTypeId   Int
+  carWashPosId          Int
+  deviceRoleId          Int?
+  isFree                Boolean  @default(true)
+  isVacuumFree          Boolean  @default(true)
+  carWashDeviceType     CarWashDeviceType @relation(fields: [carWashDeviceTypeId], references: [id])
+  carWashPos            CarWashPos        @relation(fields: [carWashPosId], references: [id])
+
+  @@map("CarWashDevice")
+}
+
+model CarWashDeviceType {
+  id      Int             @id @default(autoincrement())
+  name    String
+  code    String
+  devices CarWashDevice[]
+
+  @@map("CarWashDeviceType")
+}
+
+model CarWashPos {
+  id             Int             @id @default(autoincrement())
+  name           String
+  slug           String
+  posId          Int             @unique
+  carWashPosType CarWashPosType  @default(SelfService)
+  minSumOrder    Int             @default(50)
+  maxSumOrder    Int             @default(500)
+  stepSumOrder   Int             @default(10)
+  devices        CarWashDevice[]
+
+  @@map("CarWashPos")
+}
+
+enum CarWashPosType {
+  SelfService
+  Portal
+  SelfServiceAndPortal
+}
