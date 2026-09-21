@@ -25,6 +25,7 @@ export class CollectionRepository extends MongoGenericRepository<CollectionDocum
         integrations: _id,
       })
       .populate(populateOnFind)
+      .lean()
       .exec();
   }
 
@@ -47,6 +48,7 @@ export class CollectionRepository extends MongoGenericRepository<CollectionDocum
       .populate({
         path: 'tags',
       })
+      .lean()
       .exec();
   }
 
@@ -71,6 +73,7 @@ export class CollectionRepository extends MongoGenericRepository<CollectionDocum
       .populate({
         path: 'tags',
       })
+      .lean()
       .exec();
   }
 

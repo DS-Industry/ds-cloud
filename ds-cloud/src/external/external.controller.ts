@@ -6,8 +6,6 @@ import {
   Param,
   Req,
   UseGuards,
-  Inject,
-  LoggerService,
   Query,
 } from '@nestjs/common';
 import { ExternalService } from './external.service';
@@ -24,7 +22,6 @@ import {
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { GetCollectionListRequest } from './dto/get-collection-list-request.dto';
 import { GetCollectionBayRequest } from './dto/get-collection-bay-request.dto';
 import { GetCollectionDeviceRequest } from './dto/get-collection-device-request.dto';
@@ -34,11 +31,7 @@ import { SearchFilterDto } from '@/external/dto/search-filter.dto';
 @ApiSecurity('x-api-key', ['x-api-key'])
 @Controller('external')
 export class ExternalController {
-  constructor(
-    private readonly externalService: ExternalService,
-    @Inject(WINSTON_MODULE_NEST_PROVIDER)
-    private readonly logger: LoggerService,
-  ) {}
+  constructor(private readonly externalService: ExternalService) {}
 
   @Get('/device/write/:id')
   @ApiOperation({ summary: 'Write device data from device' })
@@ -50,9 +43,6 @@ export class ExternalController {
   @ApiUnprocessableEntityResponse({ description: 'Bad Request' })
   @UseGuards(ApiKeyGuard)
   writeDeviceData(@Param('id') id: string, @Req() req) {
-    if (id === '1952') {
-      console.log(`[IP]Device write request for id 1952 from IP: ${req.ip}`);
-    }
     const data = req.headers.data.split(',');
     return this.externalService.writeControllerData(id, data);
   }
@@ -68,12 +58,7 @@ export class ExternalController {
   writeMobileData(
     @Param('id') id: string,
     @Body() externalMobileWriteRequest: ExternalMobileWriteRequest,
-    @Req() req,
   ) {
-    this.logger.log(
-      `[${req.url}] External device request. ${JSON.stringify(req.body)}`,
-      req.headers,
-    );
     return this.externalService.writeMobileData(id, externalMobileWriteRequest);
   }
 
@@ -106,40 +91,11 @@ export class ExternalController {
 
     if (!filter) filterParam = '';
 
-    const result =
-      await this.externalService.getCarWashesWithSearchAndFilters(
-        +code,
-        searchParam,
-        this.stringToObject(filterParam),
-      );
-
-    const carwashes = (result || []).flatMap((g) => g.carwashes || []);
-    const vacuums = carwashes.flatMap((c) => c.vacuums || []);
-    const poses = carwashes.map((c) => ({
-      id: c.id,
-      name: c.name,
-      address: c.address,
-      type: c.type,
-      isActive: c.isActive,
-      boxes: (c.boxes || []).length,
-      vacuums: (c.vacuums || []).map((v) => ({
-        id: v.id,
-        number: v.number,
-        status: v.status,
-        isVacuumFree: v.isVacuumFree,
-      })),
-    }));
-
-    this.logger.log(
-      `[GET /external/onvi/carwashes] code=${code} groups=${result?.length ?? 0} poses=${poses.length} vacuums=${vacuums.length}`,
+    return this.externalService.getCarWashesWithSearchAndFilters(
+      +code,
+      searchParam,
+      this.stringToObject(filterParam),
     );
-    this.logger.log(
-      `[GET /external/onvi/carwashes] poses=${JSON.stringify(poses)}`,
-    );
-
-    console.log(JSON.stringify(poses));
-
-    return result;
   }
 
   @Get('collection/device')

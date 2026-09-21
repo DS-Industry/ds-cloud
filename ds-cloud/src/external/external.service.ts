@@ -49,7 +49,8 @@ export class ExternalService {
 
     const device = await this.deviceModel
       .findOne({ identifier: id })
-      .select({ _id: 1, lastUpdateDate: 1, status: 1 });
+      .select({ _id: 1, lastUpdateDate: 1, status: 1 })
+      .lean();
 
     const currentVar: any[] = await this.variableModel
       .find({ owner: device._id })
@@ -84,9 +85,13 @@ export class ExternalService {
       await this.variableModel.bulkWrite(bulkOps);
     }
 
-    device.status = this.checkDeviceAvailability(currentVar);
-    device.lastUpdateDate = updateTime;
-    await device.save();
+    await this.deviceModel.updateOne(
+      { _id: device._id },
+      {
+        status: this.checkDeviceAvailability(currentVar),
+        lastUpdateDate: updateTime,
+      },
+    );
 
     return res;
   }
@@ -104,7 +109,8 @@ export class ExternalService {
 
     const device = await this.deviceModel
       .findOne({ identifier: id })
-      .select({ _id: 1, lastUpdateDate: 1, coefficient: 1 });
+      .select({ _id: 1, lastUpdateDate: 1, coefficient: 1 })
+      .lean();
 
 
     const currentVar: any[] = await this.variableModel

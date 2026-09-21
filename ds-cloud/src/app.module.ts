@@ -8,7 +8,6 @@ import { CollectionModule } from './app/collection/collection.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { ExternalModule } from './external/external.module';
 import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { DatabaseModule } from './database/database.module';
 import { DatabaseService } from './database/database.service';
 import * as winston from 'winston';
@@ -20,10 +19,6 @@ import { PriceModule } from './app/price/price.module';
 import { TagsModule } from './app/tags/tags.module';
 import { BrandModule } from './app/brand/brand.module';
 import { TypesModule } from './app/types/types.module';
-import {CollectionSchema} from "@/app/collection/Schema/collection.schema";
-import mongoose, {model} from "mongoose";
-import {resources} from "@opentelemetry/sdk-node";
-
 
 const logtail = new Logtail('H8oAoz3TQm3CFZLp6HbUD64j');
 
@@ -42,7 +37,10 @@ const logtail = new Logtail('H8oAoz3TQm3CFZLp6HbUD64j');
         winston.format.timestamp(),
         winston.format.json(),
       ),
-      transports: [new LogtailTransport(logtail)],
+      transports: [
+        new winston.transports.Console(),
+        new LogtailTransport(logtail),
+      ],
     }),
     DeviceModule,
     VariableModule,

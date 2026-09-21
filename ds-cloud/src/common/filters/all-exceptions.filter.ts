@@ -40,11 +40,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
           request.body,
         )}`,
         exception.stack,
-        request.headers,
       );
     }
     const res = this.getErrorResponse(status, message, request);
-    console.log(res);
     response.status(status).send(res);
   }
 

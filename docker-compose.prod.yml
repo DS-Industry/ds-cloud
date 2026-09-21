@@ -9,11 +9,14 @@ services:
       options:
         max-file: "2"
         max-size: "10m"
+    environment:
+      NODE_OPTIONS: --max-old-space-size=384
     deploy:
       replicas: 9
       resources:
         limits:
           cpus: "1"
+          memory: 512M
       update_config:
         parallelism: 2
         delay: 15s

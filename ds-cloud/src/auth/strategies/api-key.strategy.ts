@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { HeaderAPIKeyStrategy } from 'passport-headerapikey';
 import { AuthRepository } from '../auth.repository';
@@ -9,8 +9,6 @@ export class ApiKeyStrategy extends PassportStrategy(
   HeaderAPIKeyStrategy,
   'api-key',
 ) {
-  private readonly logger = new Logger(ApiKeyStrategy.name);
-
   constructor(private authRepository: AuthRepository) {
     super({ header: 'akey', prefix: '' }, true, async (apiKey, done) =>
       this.validateKey(apiKey, done),
@@ -24,18 +22,8 @@ export class ApiKeyStrategy extends PassportStrategy(
     const trimmedKey =
       typeof incomingApiKey === 'string' ? incomingApiKey.trim() : incomingApiKey;
 
-    this.logger.log(
-      `validateKey received length=${incomingApiKey?.length} value=${JSON.stringify(
-        incomingApiKey,
-      )}`,
-    );
-
     const checkKey = await this.authRepository.getUserIfApiKeyMatches(
       trimmedKey,
-    );
-
-    this.logger.log(
-      `validateKey match=${Boolean(checkKey)} userId=${checkKey?._id ?? 'none'}`,
     );
 
     if (!checkKey) return done(new UnauthorizedException(), false);

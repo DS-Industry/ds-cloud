@@ -1,6 +1,9 @@
+access_log off;
+
 server {
     listen 80;
     server_name ds-cloud.ru www.ds-cloud.ru;
+    access_log off;
 
      location /api {
             proxy_set_header X-Real-IP $remote_addr;
@@ -31,6 +34,7 @@ server {
 server {
     listen 80;
     server_name ds-cloud.uz www.ds-cloud.uz;
+    access_log off;
 
     location /api {
         proxy_set_header X-Real-IP $remote_addr;
