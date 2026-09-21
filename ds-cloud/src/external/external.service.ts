@@ -52,6 +52,13 @@ export class ExternalService {
       .select({ _id: 1, lastUpdateDate: 1, status: 1 })
       .lean();
 
+    if (!device) {
+      throw new HttpException(
+        'Device not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
     const currentVar: any[] = await this.variableModel
       .find({ owner: device._id })
       .select({ name: 1, value: 1 })
@@ -67,6 +74,10 @@ export class ExternalService {
       const item = data[i].split(':');
       const match = currentVar.find((element) => element.name === item[0]);
 
+      if (!match) {
+        continue;
+      }
+
       if (match.value !== item[1]) {
         bulkOps.push({
           updateOne: {
@@ -78,7 +89,7 @@ export class ExternalService {
           },
         });
       }
-      res[currentVar[i].name] = currentVar[i].value;
+      res[match.name] = match.value;
     }
 
     if (bulkOps.length > 0) {
@@ -112,6 +123,12 @@ export class ExternalService {
       .select({ _id: 1, lastUpdateDate: 1, coefficient: 1 })
       .lean();
 
+    if (!device) {
+      throw new HttpException(
+        'Device not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
 
     const currentVar: any[] = await this.variableModel
       .find({ owner: device._id })
