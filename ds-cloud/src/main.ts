@@ -73,10 +73,7 @@ async function bootstrap() {
     const { AdminJS, AdminJSExpress, AdminJSMongoose } = await preloadAdminJSModules();
     const dataService = app.get(DatabaseService);
     const mongooseOptions = dataService.createMongooseOptions();
-    await mongoose.connect(mongooseOptions.uri, {
-        ssl: mongooseOptions.ssl,
-        sslCA: mongooseOptions.sslCA,
-    })
+    await mongoose.connect(mongooseOptions.uri)
     const admin = new AdminJS.default(adminOptions);
     const adminRouter = AdminJSExpress.default.buildAuthenticatedRouter(admin, {
         authenticate: async (email, password) => {
